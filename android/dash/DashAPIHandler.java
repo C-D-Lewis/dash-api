@@ -3,6 +3,8 @@ package dash;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 
 import com.getpebble.android.kit.util.PebbleDictionary;
@@ -22,6 +24,17 @@ public class DashAPIHandler {
             case DashAPIKeys.DataTypeGSMStrength:
                 break;
             case DashAPIKeys.DataTypeWifiNetworkName:
+                WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+                String name = wifiInfo.getSSID();
+                name = name.replace("\"", "");
+                if(name.equals("0x")) {
+                    // On, but disconnected?
+                    name = "Disconnected";
+                } else if(name.equals("<unknown ssid>")) {
+                    name = "Unknown";
+                }
+                out.addString(DashAPIKeys.AppKeyDataValue, name);
                 break;
             case DashAPIKeys.DataTypeStorageFreePercent:
                 break;

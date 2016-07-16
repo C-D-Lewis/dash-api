@@ -1,7 +1,9 @@
 # dash-api
 
-Dash API (in reference to the Dashboard app) allows a Pebble developer to show
-data from a connected Android phone, and also control some of its features.
+Dash API (in reference to the 
+[Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
+allows a Pebble developer to show data from a connected Android phone, and also 
+control some of its features.
 
 
 ## How It Works
@@ -100,6 +102,7 @@ See the information below to learn how to read the received data.
 | Name | ResultValue Type | Example Value | Added In Version |
 |------|------------------|---------------|------------------|
 | Battery Percentage | `integer_value` | `56` | 1.0 |
+| Wifi Network Name | `string_value` | `BTHub3-NCNR` | 1.0 |
 
 `ResultValue` is a union of two members to enable multiple data types. For
 example, battery percentage will be read as an integer:
