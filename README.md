@@ -48,7 +48,8 @@ control Android features _without a bespoke Android app written for each one_.
   > `AppMessageInboxReceived`.
 
 4. Interact with Android through one of `dash_api_get_data()`,
-   `dash_api_set_feature()`, or `dash_api_get_feature()`. 
+   `dash_api_set_feature()`, or `dash_api_get_feature()`. See the sections below
+   for code examples.
 
    > Always check the value of `success` in each callback to check for errors.
 
@@ -104,7 +105,7 @@ dash_api_get_feature(FeatureTypeWifi, get_feature_callback);
 ## Available Data
 
 The table below details all the data items currently available via the Dash API.
-See the information below to learn how to read the received data.
+See the information below the table to learn how to read the received data.
 
 | Name | ResultValue Type | Example Value | Added In Version |
 |------|------------------|---------------|------------------|
@@ -140,3 +141,24 @@ static void get_callback(DataType type, DataValue result, bool success) {
   }
 }
 ```
+
+
+## Available Features
+
+The table below details all the Android features that can be interacted with via
+the Dash API. See the information below the table to learn how to read the
+received data.
+
+> The callback used for setting and getting a feature state is the same, meaning
+> that it can be used to read the `FeatureType` and `FeatureState` that were
+> originally requested.
+
+| Name | Set Values | Added In Version |
+|------|------------|------------------|
+| `FeatureTypeWifi` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
+
+
+## TODO
+
+- Protocol can be optimized into fewer keys
+- Investigate popular requests (Unread SMS count, missed calls, next calendar event etc)

@@ -37,6 +37,8 @@ public class DashAPIService extends Service {
             int type = dict.getInteger(DashAPIKeys.AppKeyFeatureType).intValue();
             out.addInt32(DashAPIKeys.AppKeyFeatureType, type);
             int state = dict.getInteger(DashAPIKeys.AppKeyFeatureState).intValue();
+            out.addInt32(DashAPIKeys.AppKeyFeatureState, state);
+
             DashAPIHandler.handleSetFeature(context, type, state, out);
         }
 

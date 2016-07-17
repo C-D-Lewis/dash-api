@@ -98,6 +98,8 @@ public class DashAPIHandler {
     public static void handleSetFeature(Context context, int featureType, int featureState, PebbleDictionary out) {
         switch(featureType) {
             case DashAPIKeys.FeatureTypeWifi:
+                WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+                wifiManager.setWifiEnabled(featureState == DashAPIKeys.FeatureStateOn);
                 break;
             case DashAPIKeys.FeatureTypeBluetooth:
                 break;
