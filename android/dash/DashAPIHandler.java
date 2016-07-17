@@ -1,5 +1,6 @@
 package dash;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -102,6 +103,9 @@ public class DashAPIHandler {
                 wifiManager.setWifiEnabled(featureState == DashAPIKeys.FeatureStateOn);
                 break;
             case DashAPIKeys.FeatureTypeBluetooth:
+                // Can only be turned off
+                BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+                adapter.disable();
                 break;
             case DashAPIKeys.FeatureTypeRinger:
                 break;
@@ -122,6 +126,8 @@ public class DashAPIHandler {
                         wifiManager.isWifiEnabled() ? DashAPIKeys.FeatureStateOn : DashAPIKeys.FeatureStateOff);
                 break;
             case DashAPIKeys.FeatureTypeBluetooth:
+                // If we get here, BT is on!
+                out.addInt32(DashAPIKeys.AppKeyFeatureState, DashAPIKeys.FeatureStateOn);
                 break;
             case DashAPIKeys.FeatureTypeRinger:
                 break;

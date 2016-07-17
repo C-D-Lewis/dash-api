@@ -155,10 +155,14 @@ current state of the feature.
 When using `dash_api_set_feature()`, the callback parameters will mirror those
 of the request.
 
+> Since the only sensible Bluetooth instruction is to turn it off, there may not
+> be a callback when using `FeatureTypeBluetooth`. You should assume that it has
+> been turned off.
 
 | Name | Set Values | Added In Version |
 |------|------------|------------------|
 | `FeatureTypeWifi` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
+| `FeatureTypeBluetooth` | `FeatureStateOff` | 1.0 |
 
 
 ## TODO
