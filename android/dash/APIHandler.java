@@ -39,7 +39,7 @@ class APIHandler {
 
     public static void handleGetData(Context context, int type, final PebbleDictionary out) {
         switch(type) {
-            case Keys.DataTypeBatteryPercent: 
+            case Keys.DataTypeBatteryPercent:
                 Intent batteryStatus = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
                 int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
                 int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
