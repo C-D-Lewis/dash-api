@@ -149,9 +149,14 @@ The table below details all the Android features that can be interacted with via
 the Dash API. See the information below the table to learn how to read the
 received data.
 
-> The callback used for setting and getting a feature state is the same, meaning
-> that it can be used to read the `FeatureType` and `FeatureState` that were
-> originally requested.
+> The callback used for setting and getting a feature state is the same. 
+
+When using `dash_api_get_feature()`, the callback parameters will reflect the
+current state of the feature.
+
+When using `dash_api_set_feature()`, the callback parameters will mirror those
+of the request.
+
 
 | Name | Set Values | Added In Version |
 |------|------------|------------------|
