@@ -3,8 +3,6 @@ package dash;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -19,9 +17,9 @@ public class DashAPIService extends Service {
     private static final String TAG = DashAPIService.class.getName();
     private static final boolean DEBUG = false;
 
-    private void parse(PebbleDictionary dict, UUID uuid) {
+    private void parse(PebbleDictionary dict, final UUID uuid) {
         Context context = getApplicationContext();
-        PebbleDictionary out = new PebbleDictionary();
+        final PebbleDictionary out = new PebbleDictionary();
 
         // Get data request
         if(dict.getInteger(DashAPIKeys.RequestTypeGetData) != null) {
@@ -49,14 +47,23 @@ public class DashAPIService extends Service {
             DashAPIHandler.handleGetFeature(context, type, out);
         }
 
-        if(out.size() > 1) {    // At least the RequestType tuple
-            PebbleKit.sendDataToPebble(getApplicationContext(), uuid, out);
-            Log.d(TAG, "Sent response to " + uuid.toString());
+        // Wait at least xms for GSM signal strength listener to resolve
+        // Does not appear to happen immediately
+        new Thread(new Runnable() {
 
-            if(DEBUG) {
-                Log.d(TAG, "JSON out: " + out.toJsonString());
+            @Override
+            public void run() {
+                if(out.size() > 1) {    // At least the RequestType tuple
+                    PebbleKit.sendDataToPebble(getApplicationContext(), uuid, out);
+                    Log.d(TAG, "Sent response to " + uuid.toString());
+                    if(DEBUG) {
+                        Log.d(TAG, "JSON out: " + out.toJsonString());
+                    }
+                }
             }
-        }
+
+        }).start();
+
     }
 
     @Override

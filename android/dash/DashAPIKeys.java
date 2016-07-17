@@ -18,8 +18,7 @@ public class DashAPIKeys {
         DataTypeGSMStrength = 678344,
         DataTypeWifiNetworkName = 678345,
         DataTypeStorageFreePercent = 678346,
-        DataTypeStorageFreeGBMajor = 678347,
-        DataTypeStorageFreeGBMinor = 678348,
+        DataTypeStorageFreeGBString = 678347,
 
         FeatureTypeWifi = 467822,
         FeatureTypeBluetooth = 467823,

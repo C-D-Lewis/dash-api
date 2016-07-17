@@ -1,5 +1,7 @@
 # dash-api
 
+*Current version: 1.0*
+
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
 allows a Pebble developer to show data from a connected Android phone, and also 
@@ -9,11 +11,11 @@ control some of its features.
 ## How It Works
 
 All apps that use the Dash API are serviced by the [Dash API Android app](LINK).
-You should instruct your user to install this app in order for them to benefit
+You should instruct your users to install this app in order for them to benefit
 from the API.
 
-> This means that any number of watchfaces or watchapps can show Android data or
-> control Android features _without a bespoke Android app for each one_.
+This means that any number of watchfaces or watchapps can show Android data or
+control Android features _without a bespoke Android app written for each one_.
 
 
 ## Setting Up
@@ -101,8 +103,12 @@ See the information below to learn how to read the received data.
 
 | Name | ResultValue Type | Example Value | Added In Version |
 |------|------------------|---------------|------------------|
-| Battery Percentage | `integer_value` | `56` | 1.0 |
-| Wifi Network Name | `string_value` | `BTHub3-NCNR` | 1.0 |
+| `DataTypeBatteryPercent` | `integer_value` | `56` | 1.0 |
+| `DataTypeWifiNetworkName` | `string_value` | `BTHub3-NCNR` | 1.0 |
+| `DataTypeStorageFreePercent` | `integer_value` | `22` | 1.0 |
+| `DataTypeStorageFreeGBString` | `string_value` | `6.2 GB` | 1.0 |
+| `DataTypeGSMOperatorName` | `string_value` | `Three UK` | 1.0 |
+| `DataTypeGSMStrength` | `integer_value` | `68` | 1.0 |
 
 `ResultValue` is a union of two members to enable multiple data types. For
 example, battery percentage will be read as an integer:
