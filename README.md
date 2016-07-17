@@ -183,3 +183,4 @@ of the request.
 
 - Protocol can be optimized into fewer keys
 - Investigate popular requests (Unread SMS count, missed calls, next calendar event etc)
+- More agressive parameter checking
