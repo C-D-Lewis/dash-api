@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -145,6 +146,20 @@ class APIHandler {
                 break;
 
             case Keys.FeatureTypeRinger:
+                AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                switch (featureState) {
+                    case Keys.FeatureStateRingerLoud:
+                        audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                        break;
+                    case Keys.FeatureStateRingerVibrate:
+                        audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                        break;
+                    case Keys.FeatureStateRingerSilent: {
+                        audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                        audioManager.getRingerMode();   // WTF but works with this
+                        audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    }   break;
+                }
                 break;
 
             case Keys.FeatureTypeAutoSync:
@@ -191,6 +206,18 @@ class APIHandler {
                 break;
 
             case Keys.FeatureTypeRinger:
+                AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                switch (audioManager.getRingerMode()) {
+                    case AudioManager.RINGER_MODE_NORMAL:
+                        out.addInt32(Keys.AppKeyFeatureState, Keys.FeatureStateRingerLoud);
+                        break;
+                    case AudioManager.RINGER_MODE_VIBRATE:
+                        out.addInt32(Keys.AppKeyFeatureState, Keys.FeatureStateRingerVibrate);
+                        break;
+                    case AudioManager.RINGER_MODE_SILENT:
+                        out.addInt32(Keys.AppKeyFeatureState, Keys.FeatureStateRingerSilent);
+                        break;
+                }
                 break;
 
             case Keys.FeatureTypeAutoSync:

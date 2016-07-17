@@ -170,6 +170,12 @@ of the request.
 |------|------------|------------------|
 | `FeatureTypeWifi` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
 | `FeatureTypeBluetooth` | `FeatureStateOff` | 1.0 |
+| `FeatureTypeRinger` | `FeatureStateRingerLoud`, `FeatureStateRingerVibrate`, `FeatureStateRingerSilent` | 1.0 |
+| `FeatureTypeAutoSync` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
+| `FeatureTypeHotSpot` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
+| `FeatureTypeAutoBrightness` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
+
+> `FeatureTypeHotSpot` may take a few seconds to turn on and off, depending on the phone model.
 
 
 ## TODO
