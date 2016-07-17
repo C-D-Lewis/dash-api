@@ -1,6 +1,5 @@
 package dash;
 
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,9 +11,9 @@ import com.getpebble.android.kit.util.PebbleDictionary;
 
 import java.util.UUID;
 
-public class DashAPIService extends Service {
+public class Service extends android.app.Service {
 
-    private static final String TAG = DashAPIService.class.getName();
+    private static final String TAG = Service.class.getName();
     private static final boolean DEBUG = true;
 
     private void parse(PebbleDictionary dict, final UUID uuid) {
@@ -22,33 +21,33 @@ public class DashAPIService extends Service {
         final PebbleDictionary out = new PebbleDictionary();
 
         // Get data request
-        if(dict.getInteger(DashAPIKeys.RequestTypeGetData) != null) {
-            out.addInt32(DashAPIKeys.RequestTypeGetData, 0);
+        if(dict.getInteger(Keys.RequestTypeGetData) != null) {
+            out.addInt32(Keys.RequestTypeGetData, 0);
 
-            int type = dict.getInteger(DashAPIKeys.AppKeyDataType).intValue();
-            out.addInt32(DashAPIKeys.AppKeyDataType, type);
-            DashAPIHandler.handleGetData(context, type, out);
+            int type = dict.getInteger(Keys.AppKeyDataType).intValue();
+            out.addInt32(Keys.AppKeyDataType, type);
+            APIHandler.handleGetData(context, type, out);
         }
 
         // Set feature request
-        if(dict.getInteger(DashAPIKeys.RequestTypeSetFeature) != null) {
-            out.addInt32(DashAPIKeys.RequestTypeSetFeature, 0);
+        if(dict.getInteger(Keys.RequestTypeSetFeature) != null) {
+            out.addInt32(Keys.RequestTypeSetFeature, 0);
 
-            int type = dict.getInteger(DashAPIKeys.AppKeyFeatureType).intValue();
-            out.addInt32(DashAPIKeys.AppKeyFeatureType, type);
-            int state = dict.getInteger(DashAPIKeys.AppKeyFeatureState).intValue();
-            out.addInt32(DashAPIKeys.AppKeyFeatureState, state);
+            int type = dict.getInteger(Keys.AppKeyFeatureType).intValue();
+            out.addInt32(Keys.AppKeyFeatureType, type);
+            int state = dict.getInteger(Keys.AppKeyFeatureState).intValue();
+            out.addInt32(Keys.AppKeyFeatureState, state);
 
-            DashAPIHandler.handleSetFeature(context, type, state, out);
+            APIHandler.handleSetFeature(context, type, state, out);
         }
 
         // Get feature request
-        if(dict.getInteger(DashAPIKeys.RequestTypeGetFeature) != null) {
-            out.addInt32(DashAPIKeys.RequestTypeGetFeature, 0);
+        if(dict.getInteger(Keys.RequestTypeGetFeature) != null) {
+            out.addInt32(Keys.RequestTypeGetFeature, 0);
 
-            int type = dict.getInteger(DashAPIKeys.AppKeyFeatureType).intValue();
-            out.addInt32(DashAPIKeys.AppKeyFeatureType, type);
-            DashAPIHandler.handleGetFeature(context, type, out);
+            int type = dict.getInteger(Keys.AppKeyFeatureType).intValue();
+            out.addInt32(Keys.AppKeyFeatureType, type);
+            APIHandler.handleGetFeature(context, type, out);
         }
 
         // Wait at least xms for GSM signal strength listener to resolve

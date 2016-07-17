@@ -1,6 +1,6 @@
 package dash;
 
-public class DashAPIKeys {
+public class Keys {
 
     protected static final int
         RequestTypeGetData = 24784,

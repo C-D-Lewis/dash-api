@@ -34,9 +34,9 @@ import static com.getpebble.android.kit.Constants.TRANSACTION_ID;
  *     FeatureTypeKey      - FeatureType
  *     FeatureStateKey     - FeatureState
  */
-public class DashAPIReceiver extends BroadcastReceiver {
+public class Receiver extends BroadcastReceiver {
 
-    private static final String TAG = DashAPIReceiver.class.getName();
+    private static final String TAG = Receiver.class.getName();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -46,7 +46,7 @@ public class DashAPIReceiver extends BroadcastReceiver {
             PebbleDictionary dict = PebbleDictionary.fromJson(json);
 
             // Is this a job for Captain Dash API?
-            if(dict.getInteger(DashAPIKeys.AppKeyUsesDashAPI) == null) {
+            if(dict.getInteger(Keys.AppKeyUsesDashAPI) == null) {
                 return;
             }
 
@@ -58,7 +58,7 @@ public class DashAPIReceiver extends BroadcastReceiver {
             PebbleKit.sendAckToPebble(context, transactionId);
 
             // Call Service
-            Intent i = new Intent(context, DashAPIService.class);
+            Intent i = new Intent(context, Service.class);
             i.putExtra("json", json);
             i.putExtra("uuid", uuid.toString());
             context.startService(i);
