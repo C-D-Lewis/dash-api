@@ -7,6 +7,13 @@ Dash API (in reference to the
 allows a Pebble developer to show data from a connected Android phone, and also 
 control some of its features.
 
+- [Setting Up](#setting-up)
+- [Get Data](#get-data)
+- [Available Data](#available-data)
+- [Set a Feature State](#set-a-feature-state)
+- [Get a Feature State](#get-a-feature-state)
+- [Available Features](#available-features)
+
 
 ## How It Works
 
