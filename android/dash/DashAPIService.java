@@ -15,7 +15,7 @@ import java.util.UUID;
 public class DashAPIService extends Service {
 
     private static final String TAG = DashAPIService.class.getName();
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private void parse(PebbleDictionary dict, final UUID uuid) {
         Context context = getApplicationContext();
@@ -35,6 +35,7 @@ public class DashAPIService extends Service {
             out.addInt32(DashAPIKeys.RequestTypeSetFeature, 0);
 
             int type = dict.getInteger(DashAPIKeys.AppKeyFeatureType).intValue();
+            out.addInt32(DashAPIKeys.AppKeyFeatureType, type);
             int state = dict.getInteger(DashAPIKeys.AppKeyFeatureState).intValue();
             DashAPIHandler.handleSetFeature(context, type, state, out);
         }
@@ -44,6 +45,7 @@ public class DashAPIService extends Service {
             out.addInt32(DashAPIKeys.RequestTypeGetFeature, 0);
 
             int type = dict.getInteger(DashAPIKeys.AppKeyFeatureType).intValue();
+            out.addInt32(DashAPIKeys.AppKeyFeatureType, type);
             DashAPIHandler.handleGetFeature(context, type, out);
         }
 

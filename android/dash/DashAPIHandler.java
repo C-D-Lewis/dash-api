@@ -73,7 +73,7 @@ public class DashAPIHandler {
                 }
                 out.addString(DashAPIKeys.AppKeyDataValue, name);
                 break;
-            case DashAPIKeys.DataTypeStorageFreePercent: {
+            case DashAPIKeys.DataTypeStorageFreeGBString: {
                 StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
                 long free = statFs.getFreeBlocksLong() * (statFs.getBlockSizeLong());
                 float gigs = free / 1073741824F;
@@ -84,7 +84,7 @@ public class DashAPIHandler {
                 int minor = Math.round(temp) % 10;
                 out.addString(DashAPIKeys.AppKeyDataValue, "" + major + "." + minor + " GB");
             }   break;
-            case DashAPIKeys.DataTypeStorageFreeGBString: {
+            case DashAPIKeys.DataTypeStoragePercentUsed: {
                 StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
                 long free = statFs.getFreeBlocksLong() * (statFs.getBlockSizeLong());
                 long total = statFs.getBlockCountLong() * statFs.getBlockSizeLong();
@@ -115,6 +115,9 @@ public class DashAPIHandler {
     public static void handleGetFeature(Context context, int featureType, PebbleDictionary out) {
         switch(featureType) {
             case DashAPIKeys.FeatureTypeWifi:
+                WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+                out.addInt32(DashAPIKeys.AppKeyFeatureState,
+                        wifiManager.isWifiEnabled() ? DashAPIKeys.FeatureStateOn : DashAPIKeys.FeatureStateOff);
                 break;
             case DashAPIKeys.FeatureTypeBluetooth:
                 break;

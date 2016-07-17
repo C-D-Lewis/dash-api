@@ -47,6 +47,11 @@ control Android features _without a bespoke Android app written for each one_.
   > your handlers after calling `dash_api_init_appmessage()`, since it uses
   > `AppMessageInboxReceived`.
 
+4. Interact with Android through one of `dash_api_get_data()`,
+   `dash_api_set_feature()`, or `dash_api_get_feature()`. 
+
+   > Always check the value of `success` in each callback to check for errors.
+
 
 ## Get Data 
 
@@ -110,7 +115,7 @@ See the information below to learn how to read the received data.
 | `DataTypeGSMOperatorName` | `string_value` | `Three UK` | 1.0 |
 | `DataTypeGSMStrength` | `integer_value` | `68` | 1.0 |
 
-`ResultValue` is a union of two members to enable multiple data types. For
+`ResultValue` is a structure of two members to enable multiple data types. For
 example, battery percentage will be read as an integer:
 
 ```c
