@@ -17,7 +17,8 @@ control some of its features.
 
 ## How It Works
 
-All apps that use the Dash API are serviced by the [Dash API Android app](LINK).
+All apps that use the Dash API are serviced by the 
+[Dash API Android app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashapi).
 You should instruct your users to install this app in order for them to benefit
 from the API.
 
