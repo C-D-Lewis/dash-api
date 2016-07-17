@@ -185,3 +185,4 @@ of the request.
 - Investigate popular requests (Unread SMS count, missed calls, next calendar event etc)
 - More agressive parameter checking
 - Use Locker API to show apps that made recent requests
+- Make this a pebble package, somehow
