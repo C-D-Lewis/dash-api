@@ -21,8 +21,9 @@ All apps that use the Dash API are serviced by the [Dash API Android app](LINK).
 You should instruct your users to install this app in order for them to benefit
 from the API.
 
-This means that any number of watchfaces or watchapps can show Android data or
-control Android features _without a bespoke Android app written for each one_.
+This is a 'many to one' service, meaning that any number of watchfaces or
+watchapps can use Dash API to show Android data or control Android features
+_without a bespoke Android app written for each one_.
 
 
 ## Setting Up

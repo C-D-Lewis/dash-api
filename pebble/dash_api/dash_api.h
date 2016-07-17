@@ -10,19 +10,18 @@ typedef enum {
   DataTypeGSMOperatorName,          // (string_value)  The GSM operator name 
   DataTypeGSMStrength,              // (integer_value) The GSM network strength
   DataTypeWifiNetworkName,          // (string_value)  The Wifi network name
-  DataTypeStorageFreePercent,       // (integer_value) The remaining internal storage space as a percentage
-  DataTypeStorageFreeGBMajor,       // (integer_value) The major amount of GB space remaining (3 in '3.4 GB')
-  DataTypeStorageFreeGBMinor        // (integer_value) The minor amount of GB space remaining (4 in '3.4 GB')
+  DataTypeStoragePercentUsed,       // (integer_value) The used internal storage space as a percentage
+  DataTypeStorageFreeGBString,      // (string_value)  The free space of the phone, measured in GB
 } DataType;
 
 // Types of feature change that can be requested of the phone
 typedef enum {
-  FeatureTypeWifi = 467822,         // Set Wifi state (StateOn | StateOff)
-  FeatureTypeBluetooth,             // Set Bluetooth state (StateOff)
-  FeatureTypeRinger,                // Set Ringer state (StateRingerLoud | StateRingerVibrate | StateRingerSilent)
-  FeatureTypeAutoSync,              // Set the AutoSync state (StateOn | StateOff)
-  FeatureTypeHotSpot,               // Set the hotspot state (StateOn | StateOff)
-  FeatureTypeAutoBrightness         // Set the backlight auto brightness state (StateOn | StateOff)
+  FeatureTypeWifi = 467822,         // Set Wifi state (FeatureStateOn | FeatureStateOff)
+  FeatureTypeBluetooth,             // Set Bluetooth state (FeatureStateOff)
+  FeatureTypeRinger,                // Set Ringer state (FeatureStateRingerLoud | FeatureStateRingerVibrate | FeatureStateRingerSilent)
+  FeatureTypeAutoSync,              // Set the AutoSync state (FeatureStateOn | FeatureStateOff)
+  FeatureTypeHotSpot,               // Set the hotspot state (FeatureStateOn | FeatureStateOff)
+  FeatureTypeAutoBrightness         // Set the backlight auto brightness state (FeatureStateOn | FeatureStateOff)
 } FeatureType;
 
 // States for each FeatureType that can be requested
@@ -37,10 +36,8 @@ typedef enum {
 
 // Result values for Get requests. See DataType for which of these to use
 typedef struct {
-  union {
-    int integer_value;
-    char* string_value;
-  };
+  int integer_value;
+  char* string_value;
 } DataValue;
 
 /********************************* Callbacks **********************************/

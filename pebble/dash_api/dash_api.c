@@ -69,28 +69,29 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
   // Get data response
   if(dict_find(iter, RequestTypeGetData)) {
+    // Initialise
     DataValue value;
-    value.integer_value = 0;
 
     int type = dict_find(iter, AppKeyDataType)->value->int32;
     switch(type) {
       // Data type will be integer
       case DataTypeBatteryPercent:
       case DataTypeGSMStrength:
-      case DataTypeStorageFreePercent:
-      case DataTypeStorageFreeGBMajor:
-      case DataTypeStorageFreeGBMinor:
+      case DataTypeStoragePercentUsed:
         value.integer_value = dict_find(iter, AppKeyDataValue)->value->int32;
+        s_last_get_data_cb(type, value, true);
         break;
 
       // Data type will be string
       case DataTypeWifiNetworkName:
       case DataTypeGSMOperatorName:
+      case DataTypeStorageFreeGBString:
+        value.string_value = malloc(INBOX_SIZE);
         strcpy(value.string_value, dict_find(iter, AppKeyDataValue)->value->cstring);
+        s_last_get_data_cb(type, value, true);
+        free(value.string_value);
         break;
     }
-
-    s_last_get_data_cb(type, value, true);
   }
 
   // Set feature response
@@ -129,6 +130,7 @@ void dash_api_get_data(DataType type, DashAPIDataCallback *callback) {
   DataValue fail_value;
   if(!connection_service_peek_pebble_app_connection()) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Bluetooth is disconnected!");
+    callback(type, fail_value, false);
   }
 
 
@@ -166,6 +168,7 @@ static void set_feature_handler(void *context) {
 void dash_api_set_feature(FeatureType type, FeatureState new_state, DashAPIFeatureCallback *callback) {
   if(!connection_service_peek_pebble_app_connection()) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Bluetooth is disconnected!");
+    callback(type, FeatureStateUnknown, false);
   }
 
   if(in_flight()) {
@@ -186,7 +189,8 @@ void dash_api_set_feature(FeatureType type, FeatureState new_state, DashAPIFeatu
   dict_write_int(iter, AppKeyUsesDashAPI, &dummy, sizeof(int), true);
   dict_write_int(iter, RequestTypeSetFeature, &dummy, sizeof(int), true);
   dict_write_int(iter, AppKeyFeatureType, &type, sizeof(int), true);
-  dict_write_int(iter, AppKeyFeatureState, &new_state, sizeof(int), true);
+  const int state = (int)new_state; // Prevents 2 becoming 119762434
+  dict_write_int(iter, AppKeyFeatureState, &state, sizeof(int), true);
 
   s_last_set_feature_type = type;
   s_last_set_feature_cb = callback;
@@ -203,6 +207,7 @@ static void get_feature_handler(void *context) {
 void dash_api_get_feature(FeatureType type, DashAPIFeatureCallback *callback) {
   if(!connection_service_peek_pebble_app_connection()) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Bluetooth is disconnected!");
+    callback(type, FeatureStateUnknown, false);
   }
 
   if(in_flight()) {
