@@ -4,8 +4,8 @@
 
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
-allows a Pebble developer to show data from a connected Android phone, and also 
-control some of its features.
+allows a Pebble developer to access some Android APIs through a shared Android 
+app.
 
 - [Setting Up](#setting-up)
 - [Get Data](#get-data)
@@ -20,11 +20,13 @@ control some of its features.
 All apps that use the Dash API are serviced by the 
 [Dash API Android app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashapi).
 You should instruct your users to install this app in order for them to benefit
-from the API.
+from the Dash API.
 
 This is a 'many to one' service, meaning that any number of watchfaces or
-watchapps can use Dash API to show Android data or control Android features
-_without a bespoke Android app written for each one_.
+watchapps can use the Dash API to show Android data or control Android features
+_without a bespoke Android app needing to be written for each one_. Once a user
+has installed the Android app, they can install as many Pebble apps that use the
+Dash API without any further installation required.
 
 
 ## Setting Up
