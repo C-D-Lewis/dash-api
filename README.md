@@ -70,38 +70,6 @@ dash_api_get_data(DataTypeBatteryPercent, get_callback);
 ```
 
 
-## Set a Feature State
-
-To set the state of an Android feature (for example, turning on WiFi):
-
-```c
-static void set_callback(FeatureType type, FeatureState new_state, bool success) {
-  if(success) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "WiFi turned on successfully!");
-  }
-}
-
-dash_api_set_feature(FeatureTypeWifi, FeatureStateOn, set_callback);
-```
-
-
-## Get a Feature State
-
-To get the current state of a feature (for example, the state of WiFi):
-
-> This will be a value from the `FeatureState` `enum`:
-
-```c
-static void get_feature_callback(FeatureType type, FeatureState new_state, bool success) {
-  if(success) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "WiFi state now %d!", new_state);
-  }
-}
-
-dash_api_get_feature(FeatureTypeWifi, get_feature_callback);
-```
-
-
 ## Available Data
 
 The table below details all the data items currently available via the Dash API.
@@ -149,8 +117,6 @@ The table below details all the Android features that can be interacted with via
 the Dash API. See the information below the table to learn how to read the
 received data.
 
-> The callback used for setting and getting a feature state is the same. 
-
 When using `dash_api_get_feature()`, the callback parameters will reflect the
 current state of the feature.
 
@@ -161,6 +127,38 @@ of the request.
 | Name | Set Values | Added In Version |
 |------|------------|------------------|
 | `FeatureTypeWifi` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
+
+
+## Set a Feature State
+
+To set the state of an Android feature (for example, turning on WiFi):
+
+```c
+static void set_callback(FeatureType type, FeatureState new_state, bool success) {
+  if(success) {
+    APP_LOG(APP_LOG_LEVEL_INFO, "WiFi turned on successfully!");
+  }
+}
+
+dash_api_set_feature(FeatureTypeWifi, FeatureStateOn, set_callback);
+```
+
+
+## Get a Feature State
+
+To get the current state of a feature (for example, the state of WiFi):
+
+> This will be a value from the `FeatureState` `enum`:
+
+```c
+static void get_feature_callback(FeatureType type, FeatureState new_state, bool success) {
+  if(success) {
+    APP_LOG(APP_LOG_LEVEL_INFO, "WiFi state now %d!", new_state);
+  }
+}
+
+dash_api_get_feature(FeatureTypeWifi, get_feature_callback);
+```
 
 
 ## TODO
