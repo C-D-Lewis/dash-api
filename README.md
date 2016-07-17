@@ -111,24 +111,6 @@ static void get_callback(DataType type, DataValue result, bool success) {
 ```
 
 
-## Available Features
-
-The table below details all the Android features that can be interacted with via
-the Dash API. See the information below the table to learn how to read the
-received data.
-
-When using `dash_api_get_feature()`, the callback parameters will reflect the
-current state of the feature.
-
-When using `dash_api_set_feature()`, the callback parameters will mirror those
-of the request.
-
-
-| Name | Set Values | Added In Version |
-|------|------------|------------------|
-| `FeatureTypeWifi` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
-
-
 ## Set a Feature State
 
 To set the state of an Android feature (for example, turning on WiFi):
@@ -159,6 +141,24 @@ static void get_feature_callback(FeatureType type, FeatureState new_state, bool 
 
 dash_api_get_feature(FeatureTypeWifi, get_feature_callback);
 ```
+
+
+## Available Features
+
+The table below details all the Android features that can be interacted with via
+the Dash API. See the information below the table to learn how to read the
+received data.
+
+When using `dash_api_get_feature()`, the callback parameters will reflect the
+current state of the feature.
+
+When using `dash_api_set_feature()`, the callback parameters will mirror those
+of the request.
+
+
+| Name | Set Values | Added In Version |
+|------|------------|------------------|
+| `FeatureTypeWifi` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
 
 
 ## TODO
