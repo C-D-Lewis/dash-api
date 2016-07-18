@@ -1,4 +1,5 @@
 #include "dash_api.h"
+#include <pebble-events/pebble-events.h>
 
 #define INBOX_SIZE  128
 #define OUTBOX_SIZE 256
@@ -235,7 +236,7 @@ void dash_api_get_feature(FeatureType type, DashAPIFeatureCallback *callback) {
 }
 
 void dash_api_init_appmessage() {
-  app_message_deregister_callbacks();
-  app_message_register_inbox_received(inbox_received_handler);
-  app_message_open(INBOX_SIZE, OUTBOX_SIZE);
+  events_app_message_register_inbox_received(inbox_received_handler, NULL);
+  events_app_message_request_inbox_size(INBOX_SIZE);
+  events_app_message_request_outbox_size(OUTBOX_SIZE);
 }
