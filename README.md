@@ -31,10 +31,10 @@ Dash API without any further installation required.
 
 ## Setting Up
 
-1. Install the library into the project `src` directory:
+1. Install the library using the `pebble` tool:
 
   ```
-  $ cp -r pebble/dash-api src
+  $ pebble package install pebble-dash-api
   ```
 
 2. Include the library where appropriate:
