@@ -28,6 +28,15 @@ _without a bespoke Android app needing to be written for each one_. Once a user
 has installed the Android app, they can install as many Pebble apps that use the
 Dash API without any further installation required.
 
+Developers using this library should direct their users to install 'Dash API for
+Pebble' from the Google Play Store, or check that they have it installed already.
+
+
+## Example App
+
+[Dual Gauge](https://github.com/C-D-Lewis/dual-gauge) is an example watchface
+that uses this library to show both the watch and phone battery levels.
+
 
 ## Setting Up
 
