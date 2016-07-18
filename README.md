@@ -1,6 +1,6 @@
 # dash-api
 
-*Current version: 1.0*
+*Current version: 1.0.1*
 
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
@@ -31,7 +31,7 @@ Dash API without any further installation required.
 
 ## Setting Up
 
-1. Install the library using the `pebble` tool:
+1. Install the pebble package:
 
   ```
   $ pebble package install pebble-dash-api
@@ -40,11 +40,11 @@ Dash API without any further installation required.
 2. Include the library where appropriate:
 
   ```c
-  #include "dash_api/dash_api.h"
+  #include <pebble-dash-api/pebble-dash-api.h>
   ```
 
-3. If the app does not already use `AppMessage`, initialise it for Dash API
-   when the app is initialising:
+3. When the app is initialising, set up AppMessage. This uses the `pebble-
+events` package to play nice with other Pebble packages:
 
   ```c
   static void init() {
@@ -54,11 +54,20 @@ Dash API without any further installation required.
   }
   ```
 
-  > If the app **does** already use `AppMessage`, you will need to re-register
-  > your handlers after calling `dash_api_init_appmessage()`, since it uses
-  > `AppMessageInboxReceived`.
+4. When all other packages using AppMessage are initialised (if any), open
+   AppMessage:
 
-4. Interact with Android through one of `dash_api_get_data()`,
+  ```c
+  #include <pebble-events/pebble-events.h>
+  ```
+
+  ```c
+  /* other library AppMessage init code, if any */
+
+  events_app_message_open();
+  ```
+
+5. Interact with Android through one of `dash_api_get_data()`,
    `dash_api_set_feature()`, or `dash_api_get_feature()`. See the sections below
    for code examples.
 
