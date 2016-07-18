@@ -43,8 +43,8 @@ Dash API without any further installation required.
   #include <pebble-dash-api/pebble-dash-api.h>
   ```
 
-3. When the app is initialising, set up AppMessage. This uses the `pebble-
-events` package to play nice with other Pebble packages:
+3. When the app is initialising, set up AppMessage. This uses the 
+   `pebble-events` package to play nice with other Pebble packages:
 
   ```c
   static void init() {
