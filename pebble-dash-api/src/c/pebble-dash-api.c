@@ -1,4 +1,4 @@
-#include "dash_api.h"
+#include "pebble-dash-api.h"
 #include <pebble-events/pebble-events.h>
 
 #define INBOX_SIZE  128
