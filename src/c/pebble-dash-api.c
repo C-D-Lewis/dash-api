@@ -10,7 +10,7 @@ typedef enum {
   RequestTypeGetData = 24784,
   RequestTypeSetFeature = 24785,
   RequestTypeGetFeature = 24786,
-  RequestTypeIsAvailable = 24787
+  RequestTypeResult = 24787
 } RequestType;
 
 typedef enum {
@@ -51,6 +51,7 @@ static void clear_callbacks() {
 
 /**
  * Packet Formats 
+ *
  * (From Android):
  *   RequestTypeGetData
  *     AppKeyDataType      - DataType
@@ -59,10 +60,14 @@ static void clear_callbacks() {
  *     AppKeyFeatureState  - FeatureState
  *   RequestTypeGetFeature
  *     AppKeyFeatureType   - FeatureType
- *   RequestTypeIsAvailable
+ *   RequestTypeResult
  *     AppKeyLibraryVersion
  *
  * (To Android):
+ * HEADER:
+ *   AppKeyUsesDashAPI
+ *   AppKeyAppName
+ * OTHER:
  *   RequestTypeGetData
  *     AppKeyDataType      - DataType
  *     AppKeyDataValue     - DataValue
@@ -72,7 +77,7 @@ static void clear_callbacks() {
  *   RequestTypeGetFeature
  *     AppKeyFeatureType   - FeatureType
  *     AppKeyFeatureState  - FeatureState
- *   RequestTypeIsAvailable
+ *   RequestTypeResult
  *     AppKeyResultCode    - ResultCodeNoPermissions | ResultCodeWrongVersion
  */
 static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
@@ -122,7 +127,7 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
   } 
 
   // Is available result, or no permission result
-  else if(dict_find(inbox, RequestTypeIsAvailable)) {
+  else if(dict_find(inbox, RequestTypeResult)) {
     int code = dict_find(inbox, AppKeyResultCode)->value->int32;
     switch(code) {
       case ResultCodeNoPermissions:
