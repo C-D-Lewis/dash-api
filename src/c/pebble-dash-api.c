@@ -1,7 +1,8 @@
 #include "pebble-dash-api.h"
+
 #include <pebble-events/pebble-events.h>
 
-#define INBOX_SIZE  128
+#define INBOX_SIZE  256
 #define OUTBOX_SIZE 256
 #define DELAY_MS    200   // Enable opening AppMessage and an API query in the same event loop
 
@@ -16,13 +17,20 @@ typedef enum {
   AppKeyFeatureState = 47837,
   AppKeyDataType = 47838,
   AppKeyDataValue = 47839,
-  AppKeyUsesDashAPI = 47840
+  AppKeyUsesDashAPI = 47840,
+  AppKeyAppName = 47841,
+  AppKeyResultCode = 47842,
+  AppKeyLibraryVersion = 47843
 } AppKey;
 
 static DashAPIDataCallback *s_last_get_data_cb;
 static DashAPIFeatureCallback *s_last_set_feature_cb, *s_last_get_feature_cb;
+static DashAPIResultCallback *s_result_callback;
+
 static FeatureType s_last_get_feature_type, s_last_set_feature_type;
 static DataType s_last_get_data_type;
+static DictionaryIterator *s_iter;
+static char s_app_name[32];
 
 /********************************* Internal ***********************************/
 
@@ -62,25 +70,24 @@ static void clear_callbacks() {
  *     AppKeyFeatureType   - FeatureType
  *     AppKeyFeatureState  - FeatureState
  */
-static void inbox_received_handler(DictionaryIterator *iter, void *context) {
+static void inbox_received_handler(DictionaryIterator *s_iter, void *context) {
   if(!in_flight()) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: no callbacks");
     return;  // Nothing expected, ignore
   }
 
   // Get data response
-  if(dict_find(iter, RequestTypeGetData)) {
-    // Initialise
+  if(dict_find(s_iter, RequestTypeGetData)) {
     DataValue value;
 
-    int type = dict_find(iter, AppKeyDataType)->value->int32;
+    int type = dict_find(s_iter, AppKeyDataType)->value->int32;
     switch(type) {
       // Data type will be integer
       case DataTypeBatteryPercent:
       case DataTypeGSMStrength:
       case DataTypeStoragePercentUsed:
-        value.integer_value = dict_find(iter, AppKeyDataValue)->value->int32;
-        s_last_get_data_cb(type, value, true);
+        value.integer_value = dict_find(s_iter, AppKeyDataValue)->value->int32;
+        s_last_get_data_cb(type, value);
         break;
 
       // Data type will be string
@@ -88,25 +95,25 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
       case DataTypeGSMOperatorName:
       case DataTypeStorageFreeGBString:
         value.string_value = malloc(INBOX_SIZE);
-        strcpy(value.string_value, dict_find(iter, AppKeyDataValue)->value->cstring);
-        s_last_get_data_cb(type, value, true);
+        strcpy(value.string_value, dict_find(s_iter, AppKeyDataValue)->value->cstring);
+        s_last_get_data_cb(type, value);
         free(value.string_value);
         break;
     }
   }
 
   // Set feature response
-  else if(dict_find(iter, RequestTypeSetFeature)) {
-    int type = dict_find(iter, AppKeyFeatureType)->value->int32;
-    int state = dict_find(iter, AppKeyFeatureState)->value->int32;
-    s_last_set_feature_cb(type, state, true);
+  else if(dict_find(s_iter, RequestTypeSetFeature)) {
+    int type = dict_find(s_iter, AppKeyFeatureType)->value->int32;
+    int state = dict_find(s_iter, AppKeyFeatureState)->value->int32;
+    s_last_set_feature_cb(type, state);
   }
 
   // Get feature response
-  else if(dict_find(iter, RequestTypeGetFeature)) {
-    int type = dict_find(iter, AppKeyFeatureType)->value->int32;
-    int state = dict_find(iter, AppKeyFeatureState)->value->int32;
-    s_last_get_feature_cb(type, state, true);
+  else if(dict_find(s_iter, RequestTypeGetFeature)) {
+    int type = dict_find(s_iter, AppKeyFeatureType)->value->int32;
+    int state = dict_find(s_iter, AppKeyFeatureState)->value->int32;
+    s_last_get_feature_cb(type, state);
   } 
 
   else {
@@ -116,127 +123,110 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   clear_callbacks();
 }
 
-/************************************ API *************************************/
-
-static void get_data_handler(void *context) {
-  DataValue fail_value;
-
-  if(app_message_outbox_send() != APP_MSG_OK) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error sending outbox!");
-    s_last_get_data_cb(s_last_get_data_type, fail_value, false);
-  }
+static void write_header() {
+  const int dummy = 0;
+  dict_write_int(s_iter, AppKeyUsesDashAPI, &dummy, sizeof(int), true);
+  dict_write_cstring(s_iter, AppKeyAppName, s_app_name);
 }
 
-void dash_api_get_data(DataType type, DashAPIDataCallback *callback) {
-  DataValue fail_value;
+static bool prepare_outbox() {
   if(!connection_service_peek_pebble_app_connection()) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Bluetooth is disconnected!");
-    callback(type, fail_value, false);
+    s_result_callback(ResultCodeSendingFailed);
+    return false;
   }
-
 
   if(in_flight()) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_get_data() failed - request already in progress!");
-    callback(type, fail_value, false);
-    return;
+    s_result_callback(ResultCodeSendingFailed);
+    return false;
   }
 
-  DictionaryIterator *iter;
-  AppMessageResult result = app_message_outbox_begin(&iter);
+  AppMessageResult result = app_message_outbox_begin(&s_iter);
   if(result != APP_MSG_OK) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error opening outbox!");
-    callback(type, fail_value, false);
+    s_result_callback(ResultCodeSendingFailed);
+    return false;
+  }
+
+  write_header();
+
+  return true;
+}
+
+static void send_outbox_callback() {
+  if(app_message_outbox_send() != APP_MSG_OK) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error sending outbox!");
+    s_result_callback(ResultCodeSendingFailed);
+  }
+}
+
+static void send_outbox() {
+  app_timer_register(DELAY_MS, send_outbox_callback, NULL);
+}
+
+/************************************ API *************************************/
+
+void dash_api_get_data(DataType type, DashAPIDataCallback *callback) {
+  if(!prepare_outbox()) {
     return;
   }
 
   const int dummy = 0;
-  dict_write_int(iter, AppKeyUsesDashAPI, &dummy, sizeof(int), true);
-  dict_write_int(iter, RequestTypeGetData, &dummy, sizeof(int), true);
-  dict_write_int(iter, AppKeyDataType, &type, sizeof(int), true);
+  dict_write_int(s_iter, RequestTypeGetData, &dummy, sizeof(int), true);
+  dict_write_int(s_iter, AppKeyDataType, &type, sizeof(int), true);
 
   s_last_get_data_type = type;
   s_last_get_data_cb = callback;
-  app_timer_register(DELAY_MS, get_data_handler, NULL);
-}
-
-static void set_feature_handler(void *context) {
-  if(app_message_outbox_send() != APP_MSG_OK) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error sending outbox!");
-    s_last_set_feature_cb(s_last_set_feature_type, FeatureStateUnknown, false);
-  }
+  send_outbox();
 }
 
 void dash_api_set_feature(FeatureType type, FeatureState new_state, DashAPIFeatureCallback *callback) {
-  if(!connection_service_peek_pebble_app_connection()) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Bluetooth is disconnected!");
-    callback(type, FeatureStateUnknown, false);
-  }
-
-  if(in_flight()) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_set_feature() failed - request already in progress!");
-    callback(type, FeatureStateUnknown, false);
-    return;
-  }
-
-  DictionaryIterator *iter;
-  AppMessageResult result = app_message_outbox_begin(&iter);
-  if(result != APP_MSG_OK) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error opening outbox!");
-    callback(type, FeatureStateUnknown, false);
+  if(!prepare_outbox()) {
     return;
   }
 
   const int dummy = 0;
-  dict_write_int(iter, AppKeyUsesDashAPI, &dummy, sizeof(int), true);
-  dict_write_int(iter, RequestTypeSetFeature, &dummy, sizeof(int), true);
-  dict_write_int(iter, AppKeyFeatureType, &type, sizeof(int), true);
+  dict_write_int(s_iter, RequestTypeSetFeature, &dummy, sizeof(int), true);
+  dict_write_int(s_iter, AppKeyFeatureType, &type, sizeof(int), true);
   const int state = (int)new_state; // Prevents 2 becoming 119762434
-  dict_write_int(iter, AppKeyFeatureState, &state, sizeof(int), true);
+  dict_write_int(s_iter, AppKeyFeatureState, &state, sizeof(int), true);
 
   s_last_set_feature_type = type;
   s_last_set_feature_cb = callback;
-  app_timer_register(DELAY_MS, set_feature_handler, NULL);
-}
-
-static void get_feature_handler(void *context) {
-  if(app_message_outbox_send() != APP_MSG_OK) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error sending outbox!");
-    s_last_get_feature_cb(s_last_get_feature_type, FeatureStateUnknown, false);
-  }
+  send_outbox();
 }
 
 void dash_api_get_feature(FeatureType type, DashAPIFeatureCallback *callback) {
-  if(!connection_service_peek_pebble_app_connection()) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Bluetooth is disconnected!");
-    callback(type, FeatureStateUnknown, false);
-  }
-
-  if(in_flight()) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_get_feature() failed - request already in progress!");
-    callback(type, FeatureStateUnknown, false);
-    return;
-  }
-
-  DictionaryIterator *iter;
-  AppMessageResult result = app_message_outbox_begin(&iter);
-  if(result != APP_MSG_OK) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error opening outbox!");
-    callback(type, FeatureStateUnknown, false);
+  if(!prepare_outbox()) {
     return;
   }
 
   const int dummy = 0;
-  dict_write_int(iter, AppKeyUsesDashAPI, &dummy, sizeof(int), true);
-  dict_write_int(iter, RequestTypeGetFeature, &dummy, sizeof(int), true);
-  dict_write_int(iter, AppKeyFeatureType, &type, sizeof(int), true);
+  dict_write_int(s_iter, RequestTypeGetFeature, &dummy, sizeof(int), true);
+  dict_write_int(s_iter, AppKeyFeatureType, &type, sizeof(int), true);
 
   s_last_get_feature_type = type;
   s_last_get_feature_cb = callback;
-  app_timer_register(DELAY_MS, get_feature_handler, NULL);
+  send_outbox();
 }
 
-void dash_api_init_appmessage() {
+void dash_api_init(char *app_name, DashAPIResultCallback *callback) {
+  s_result_callback = callback;
+  snprintf(s_app_name, sizeof(s_app_name), "%s", app_name);
+
   events_app_message_register_inbox_received(inbox_received_handler, NULL);
   events_app_message_request_inbox_size(INBOX_SIZE);
   events_app_message_request_outbox_size(OUTBOX_SIZE);
+}
+
+void dash_api_is_available() {
+  if(!prepare_outbox()) {
+    return;
+  }
+
+  const int version = DASH_API_VERSION;
+  dict_write_int(s_iter, AppKeyLibraryVersion, &version, sizeof(int), true);
+
+  send_outbox();
 }

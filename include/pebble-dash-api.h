@@ -2,6 +2,8 @@
 
 #include <pebble.h>
 
+#define DASH_API_VERSION 1.1
+
 /******************************** Enumerations ********************************/
 
 // Types of data that can requested from the phone
@@ -40,45 +42,65 @@ typedef struct {
   char* string_value;
 } DataValue;
 
+// Result codes for callbacks
+typedef enum {
+  ResultCodeSuccess = 0,            // The request was made successfully
+  ResultCodeSendingFailed,          // The sending of the request failed, or there was no connection
+  ResultCodeTimedOut,               // The request timed out
+  ResultCodeNoPermissions,          // This app has not been permitted in the Dash API Android app
+  ResultCodeWrongVersion            // An old or incompatible version of the Dash API Android app is installed
+} ResultCode;
+
 /********************************* Callbacks **********************************/
 
-// Callback called when a Set request returns from the phone side of this library
+// Callback called when a Set request returns from the phone side of this library.
 // Parameters:
-//   FeatureType  - The type of feature that was originally requested
+//   FeatureType  - The type of feature that was originally requested.
 //   FeatureState - The state of the feature that was originally requested, or FeatureStateUnknown
 //                  when dash_api_get_feature() fails.
-//   bool         - Whether or not the request was successfully actioned (Can fail on both sides)
-typedef void(DashAPIFeatureCallback)(FeatureType, FeatureState, bool);
+typedef void(DashAPIFeatureCallback)(FeatureType, FeatureState);
 
-// Callback called when a Get request returns from the phone side of this library
+// Callback called when a Get request returns from the phone side of this library.
 // Parameters:
-//   DataType  - The type of data that was requested
-//   DataValue - The data returned by the request (valid for the duration of the callback)
-//   bool      - Whether or not the request was successfully actioned (Can fail on both sides)
-typedef void(DashAPIDataCallback)(DataType, DataValue, bool);
+//   DataType   - The type of data that was requested.
+//   DataValue  - The data returned by the request (valid for the duration of the callback).
+typedef void(DashAPIDataCallback)(DataType, DataValue);
+
+// Callback called after a non-data or feature query has been made, such as whether the Dash API is available.
+// Parameters:
+//   ResultCode - The result of the request
+typedef void(DashAPIResultCallback)(ResultCode);
 
 /************************************ API *************************************/
 
-// Get some data from the phone side of this library
+// Get some data from the phone side of this library.
 // Parameters:
-//   DataType            - The type of data to get
-//   DashAPIDataCallback - The callback called when the request succeeds or fails
+//   type     - The type of data to get.
+//   callback - The callback called when the request succeeds or fails.
 void dash_api_get_data(DataType type, DashAPIDataCallback *callback);
 
-// Change the state of a phone feature
+// Change the state of a phone feature.
 // Parameters:
-//   FeatureType            - The type of feature to change state of
-//   FeatureState           - The state to set this feature into
-//   DashAPIFeatureCallback - The callback called when the request succeeds or fails 
+//   type      - The type of feature to change state of.
+//   new_state - The state to set this feature into.
+//   callback  - The callback called when the request succeeds or fails.
 void dash_api_set_feature(FeatureType type, FeatureState new_state, DashAPIFeatureCallback *callback);
 
-// Get the state of a feature on the phone
+// Get the state of a feature on the phone.
 // Parameters:
-//   FeatureType            - The type of feature to get the state of
-//   DashAPIFeatureCallback - The callback called when the request succeeds or fails
+//   type     - The type of feature to get the state of.
+//   callback - The callback called when the request succeeds or fails.
 void dash_api_get_feature(FeatureType type, DashAPIFeatureCallback *callback);
 
-// If the app does not already use AppMessage, use this to initialize it before using this library.
-// If the app does already use AppMessage, its callbacks will need to be re-registered
-// after each use of this library.
-void dash_api_init_appmessage();
+// Intialise the library by calling this function before any of the others.
+// Parameters:
+//   app_name - The name of your app. This will be used to allow the user to manage permissions.
+//              Max 32 characters.
+//   callback - A central result callback that will be notified of various results of requests
+//              using values of ResultCode.
+void dash_api_init(char *app_name, DashAPIResultCallback *callback);
+
+// Check to see if the Dash API is available. If the Android app is not installed, the request will
+// likely result in ResultCodeTimedOut. The result will be delievered to the DashAPIResultCallback
+// registered with dash_api_init().
+void dash_api_is_available();

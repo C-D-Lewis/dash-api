@@ -202,7 +202,6 @@ of the request.
 
 ## TODO
 
+- More agressive parameter checking
 - Protocol can be optimized into fewer keys
 - Investigate popular requests (Unread SMS count, missed calls, next calendar event etc)
-- More agressive parameter checking
-- Use Locker API to show apps that made recent requests
