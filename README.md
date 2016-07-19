@@ -26,10 +26,12 @@ This is a 'many to one' service, meaning that any number of watchfaces or
 watchapps can use the Dash API to show Android data or control Android features
 _without a bespoke Android app needing to be written for each one_. Once a user
 has installed the Android app, they can install as many Pebble apps that use the
-Dash API without any further installation required.
+Dash API without any further Android app installation required.
 
 Developers using this library should direct their users to install 'Dash API for
-Pebble' from the Google Play Store, or check that they have it installed already.
+Pebble' from the Google Play Store, or check that they have it installed
+already. The library will inform you of this if a request times out by
+delivering `ResultCodeUnavailable` to your `DashAPIErrorCallback`.
 
 
 ## Example App
@@ -52,19 +54,31 @@ that uses this library to show both the watch and phone battery levels.
   #include <pebble-dash-api/pebble-dash-api.h>
   ```
 
-3. When the app is initialising, set up AppMessage. This uses the 
-   `pebble-events` package to play nice with other Pebble packages:
+3. When the app is initialising, set up AppMessage for Dash API. This uses the 
+   `pebble-events` package to play nice with other Pebble packages. Include the 
+   name of your app (used in the Android app), and a callback to receive 
+   `ErrorCode` values:
+
+  ```c
+  #define APP_NAME "My Dash API Client App"
+  ```
+
+  ```c
+  static void error_callback(ErrorCode code) { 
+    APP_LOG(APP_LOG_LEVEL_INFO, "Got ErrorCode %d", code);
+  }
+  ```
 
   ```c
   static void init() {
-    dash_api_init_appmessage();
+    dash_api_init(APP_NAME, error_callback);
 
     /* other init code */
   }
   ```
 
 4. When all other packages using AppMessage are initialised (if any), open
-   AppMessage:
+   AppMessage for them all:
 
   ```c
   #include <pebble-events/pebble-events.h>
@@ -80,8 +94,6 @@ that uses this library to show both the watch and phone battery levels.
    `dash_api_set_feature()`, or `dash_api_get_feature()`. See the sections below
    for code examples.
 
-   > Always check the value of `success` in each callback to check for errors.
-
 
 ## Get Data 
 
@@ -89,10 +101,8 @@ To get some data from Android, choose a `DataType` from the Available Data
  table below, and make a call to the API with a handler to receive the result:
 
 ```c
-static void get_callback(DataType type, DataValue result, bool success) {
-  if(success) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Phone Battery:\n%d%%", result.integer_value);
-  }
+static void get_callback(DataType type, DataValue result) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Phone Battery:\n%d%%", result.integer_value);
 }
 
 dash_api_get_data(DataTypeBatteryPercent, get_callback);
@@ -117,38 +127,36 @@ See the information below the table to learn how to read the received data.
 example, battery percentage will be read as an integer:
 
 ```c
-static void get_callback(DataType type, DataValue result, bool success) {
-  if(success) {
-    int battery_percent = result.integer_value;
-  }
+static void get_callback(DataType type, DataValue result) {
+  int battery_percent = result.integer_value;
 }
 ```
 
-whereas GSM operator name will be read as a string:
+Whereas GSM operator name will be read as a string:
 
 > The string will only be valid for the duration of the callback, so should be
 > copied out as required.
 
 ```c
-static void get_callback(DataType type, DataValue result, bool success) {
-  if(success) {
-    static char s_buff[32];
-    snprintf(s_buff, sizeof(s_buff), "GSM Operator: %s", result.string_value);
-    APP_LOG(APP_LOG_LEVEL_INFO, "%s", s_buff);
-  }
+static void get_callback(DataType type, DataValue result) {
+  static char s_buff[32];
+  snprintf(s_buff, sizeof(s_buff), "GSM Operator: %s", result.string_value);
+  APP_LOG(APP_LOG_LEVEL_INFO, "%s", s_buff);
 }
 ```
 
 
 ## Set a Feature State
 
+> To _set_ the state of a feature, the client app will need to be granted
+> permission in the Dash API Android app. The user will be notified and asked to
+> switch it on within the app. This applies _only_ to setting a feature state.
+
 To set the state of an Android feature (for example, turning on WiFi):
 
 ```c
-static void set_callback(FeatureType type, FeatureState new_state, bool success) {
-  if(success) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "WiFi turned on successfully!");
-  }
+static void set_callback(FeatureType type, FeatureState new_state) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "WiFi request successful!");
 }
 
 dash_api_set_feature(FeatureTypeWifi, FeatureStateOn, set_callback);
@@ -162,10 +170,8 @@ To get the current state of a feature (for example, the state of WiFi):
 > This will be a value from the `FeatureState` `enum`:
 
 ```c
-static void get_feature_callback(FeatureType type, FeatureState new_state, bool success) {
-  if(success) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "WiFi state now %d!", new_state);
-  }
+static void get_feature_callback(FeatureType type, FeatureState new_state) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "WiFi state now %d!", new_state);
 }
 
 dash_api_get_feature(FeatureTypeWifi, get_feature_callback);
@@ -184,10 +190,6 @@ current state of the feature.
 When using `dash_api_set_feature()`, the callback parameters will mirror those
 of the request.
 
-> Since the only sensible Bluetooth instruction is to turn it off, there may not
-> be a callback when using `FeatureTypeBluetooth`. You should assume that it has
-> been turned off.
-
 | Name | Set Values | Added In Version |
 |------|------------|------------------|
 | `FeatureTypeWifi` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
@@ -197,11 +199,33 @@ of the request.
 | `FeatureTypeHotSpot` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
 | `FeatureTypeAutoBrightness` | `FeatureStateOn`, `FeatureStateOff` | 1.0 |
 
-> `FeatureTypeHotSpot` may take a few seconds to turn on and off, depending on the phone model.
+> Since the only sensible Bluetooth instruction is to turn it off, there may not
+> be a callback when using `FeatureTypeBluetooth`. You should assume that it has
+> been turned off.
+> 
+> `FeatureTypeHotSpot` may take a few seconds to turn on and off, depending on
+> `the phone model.
+
+
+## Changelog
+
+**1.0**
+- Initial release.
+
+**1.0.1**
+- Update README.md on NPM.
+
+**1.1**
+- Add `app_name` and `DashAPIErrorCallback` to `dash_api_init()` (formerly 
+  `dash_api_init_appmessage()`).
+- Change signatures of the main callbacks, directed failed result of requests to 
+  the `DashAPIErrorCallback`.
+- Add permission switches in the Android app for clients that wish to _set_ 
+  a feature state. Reading is unaffected.
+- Added a timeout mechanism to inform when the Android app may be unavailable.
 
 
 ## TODO
 
-- More agressive parameter checking
 - Protocol can be optimized into fewer keys
 - Investigate popular requests (Unread SMS count, missed calls, next calendar event etc)

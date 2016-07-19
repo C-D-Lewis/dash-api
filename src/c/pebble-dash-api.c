@@ -5,12 +5,13 @@
 #define INBOX_SIZE  256
 #define OUTBOX_SIZE 256
 #define DELAY_MS    200   // Enable opening AppMessage and an API query in the same event loop
+#define TIMEOUT_MS  10000 // 10s for the Android app to respond, or it is assumed MIA
 
 typedef enum {
   RequestTypeGetData = 24784,
   RequestTypeSetFeature = 24785,
   RequestTypeGetFeature = 24786,
-  RequestTypeResult = 24787
+  RequestTypeError = 24787
 } RequestType;
 
 typedef enum {
@@ -20,14 +21,15 @@ typedef enum {
   AppKeyDataValue = 47839,
   AppKeyUsesDashAPI = 47840,
   AppKeyAppName = 47841,
-  AppKeyResultCode = 47842,
+  AppKeyErrorCode = 47842,
   AppKeyLibraryVersion = 47843
 } AppKey;
 
 static DashAPIDataCallback *s_last_get_data_cb;
 static DashAPIFeatureCallback *s_last_set_feature_cb, *s_last_get_feature_cb;
-static DashAPIResultCallback *s_result_callback;
+static DashAPIErrorCallback *s_error_callback;
 
+static AppTimer *s_timeout_timer;
 static FeatureType s_last_get_feature_type, s_last_set_feature_type;
 static DataType s_last_get_data_type;
 static DictionaryIterator *s_outbox;
@@ -60,7 +62,7 @@ static void clear_callbacks() {
  *     AppKeyFeatureState  - FeatureState
  *   RequestTypeGetFeature
  *     AppKeyFeatureType   - FeatureType
- *   RequestTypeResult
+ *   RequestTypeError
  *     AppKeyLibraryVersion
  *
  * (To Android):
@@ -77,8 +79,8 @@ static void clear_callbacks() {
  *   RequestTypeGetFeature
  *     AppKeyFeatureType   - FeatureType
  *     AppKeyFeatureState  - FeatureState
- *   RequestTypeResult
- *     AppKeyResultCode    - ResultCodeNoPermissions | ResultCodeWrongVersion
+ *   RequestTypeError
+ *     AppKeyErrorCode    - ErrorCodeNoPermissions | ErrorCodeWrongVersion
  */
 static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
   if(!in_flight()) {
@@ -127,17 +129,17 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
   } 
 
   // Is available result, or no permission result
-  else if(dict_find(inbox, RequestTypeResult)) {
-    int code = dict_find(inbox, AppKeyResultCode)->value->int32;
+  else if(dict_find(inbox, RequestTypeError)) {
+    int code = dict_find(inbox, AppKeyErrorCode)->value->int32;
     switch(code) {
-      case ResultCodeNoPermissions:
+      case ErrorCodeNoPermissions:
         APP_LOG(APP_LOG_LEVEL_ERROR, "Permission for this app has not been granted within the Dash API Android app!");
         break;
-      case ResultCodeWrongVersion:
+      case ErrorCodeWrongVersion:
         APP_LOG(APP_LOG_LEVEL_ERROR, "An incompatible version of the Dash API Android app is installed!");
         break;
     }
-    s_result_callback(code);
+    s_error_callback(code);
   }
 
   else {
@@ -156,20 +158,20 @@ static void write_header() {
 static bool prepare_outbox() {
   if(!connection_service_peek_pebble_app_connection()) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Bluetooth is disconnected!");
-    s_result_callback(ResultCodeSendingFailed);
+    s_error_callback(ErrorCodeSendingFailed);
     return false;
   }
 
   if(in_flight()) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_get_data() failed - request already in progress!");
-    s_result_callback(ResultCodeSendingFailed);
+    s_error_callback(ErrorCodeSendingFailed);
     return false;
   }
 
   AppMessageResult result = app_message_outbox_begin(&s_outbox);
   if(result != APP_MSG_OK) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error opening outbox!");
-    s_result_callback(ResultCodeSendingFailed);
+    s_error_callback(ErrorCodeSendingFailed);
     return false;
   }
 
@@ -178,11 +180,22 @@ static bool prepare_outbox() {
   return true;
 }
 
+static void timeout_handler(void *context) {
+
+}
+
 static void send_outbox_callback() {
   if(app_message_outbox_send() != APP_MSG_OK) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error sending outbox!");
-    s_result_callback(ResultCodeSendingFailed);
+    s_error_callback(ErrorCodeSendingFailed);
   }
+
+  // Begin timeout timer
+  if(s_timeout_timer) {
+    app_timer_cancel(s_timeout_timer);
+    s_timeout_timer = NULL;
+  }
+  s_timeout_timer = app_timer_register(TIMEOUT_MS, timeout_handler, NULL);
 }
 
 static void send_outbox() {
@@ -235,8 +248,8 @@ void dash_api_get_feature(FeatureType type, DashAPIFeatureCallback *callback) {
   send_outbox();
 }
 
-void dash_api_init(char *app_name, DashAPIResultCallback *callback) {
-  s_result_callback = callback;
+void dash_api_init(char *app_name, DashAPIErrorCallback *callback) {
+  s_error_callback = callback;
   snprintf(s_app_name, sizeof(s_app_name), "%s", app_name);
 
   events_app_message_register_inbox_received(inbox_received_handler, NULL);

@@ -44,12 +44,12 @@ typedef struct {
 
 // Result codes for callbacks
 typedef enum {
-  ResultCodeSuccess = 0,            // The request was made successfully
-  ResultCodeSendingFailed,          // The sending of the request failed, or there was no connection
-  ResultCodeTimedOut,               // The request timed out
-  ResultCodeNoPermissions,          // This app has not been permitted in the Dash API Android app
-  ResultCodeWrongVersion            // An old or incompatible version of the Dash API Android app is installed
-} ResultCode;
+  ErrorCodeSuccess = 0,            // The request was made successfully
+  ErrorCodeSendingFailed,          // The sending of the request failed, or there was no connection
+  ErrorCodeUnavailable,            // The request timed out or the Android app was unavailable, or not installed
+  ErrorCodeNoPermissions,          // This app has not been permitted in the Dash API Android app
+  ErrorCodeWrongVersion            // An old or incompatible version of the Dash API Android app is installed
+} ErrorCode;
 
 /********************************* Callbacks **********************************/
 
@@ -66,10 +66,10 @@ typedef void(DashAPIFeatureCallback)(FeatureType, FeatureState);
 //   DataValue  - The data returned by the request (valid for the duration of the callback).
 typedef void(DashAPIDataCallback)(DataType, DataValue);
 
-// Callback called after a non-data or feature query has been made, such as whether the Dash API is available.
+// Callback called when a request fails for some reason.
 // Parameters:
-//   ResultCode - The result of the request
-typedef void(DashAPIResultCallback)(ResultCode);
+//   ErrorCode - The code representing the result of the request
+typedef void(DashAPIErrorCallback)(ErrorCode);
 
 /************************************ API *************************************/
 
@@ -97,10 +97,10 @@ void dash_api_get_feature(FeatureType type, DashAPIFeatureCallback *callback);
 //   app_name - The name of your app. This will be used to allow the user to manage permissions.
 //              Max 32 characters.
 //   callback - A central result callback that will be notified of various results of requests
-//              using values of ResultCode.
-void dash_api_init(char *app_name, DashAPIResultCallback *callback);
+//              using values of ErrorCode.
+void dash_api_init(char *app_name, DashAPIErrorCallback *callback);
 
 // Check to see if the Dash API is available. If the Android app is not installed, the request will
-// likely result in ResultCodeTimedOut. The result will be delievered to the DashAPIResultCallback
+// likely result in ErrorCodeUnavailable. The result will be delievered to the DashAPIErrorCallback
 // registered with dash_api_init().
 void dash_api_is_available();
