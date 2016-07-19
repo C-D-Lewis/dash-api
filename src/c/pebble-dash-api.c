@@ -11,7 +11,8 @@ typedef enum {
   RequestTypeGetData = 24784,
   RequestTypeSetFeature = 24785,
   RequestTypeGetFeature = 24786,
-  RequestTypeError = 24787
+  RequestTypeError = 24787,
+  RequestTypeIsAvailable = 24788
 } RequestType;
 
 typedef enum {
@@ -36,6 +37,30 @@ static DictionaryIterator *s_outbox;
 static char s_app_name[32];
 
 /********************************* Internal ***********************************/
+
+static bool data_type_is_valid(DataType type) {
+  bool valid = type >= DataTypeBatteryPercent && type <= DataTypeStorageFreeGBString;
+  if(!valid) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: DataType is not valid!");
+  }
+  return valid;
+}
+
+static bool feature_type_is_valid(FeatureType type) {
+  bool valid = type >= FeatureTypeWifi && type <= FeatureTypeAutoBrightness;
+  if(!valid) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: FeatureType is not valid!");
+  }
+  return valid;
+}
+
+static bool feature_state_is_valid(FeatureState state) {
+  bool valid = state >= FeatureStateOff && state <= FeatureStateRingerSilent;
+  if(!valid) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: FeatureState is not valid!");
+  }
+  return valid;
+}
 
 static bool in_flight() {
   return s_last_get_data_cb || s_last_set_feature_cb || s_last_get_feature_cb;
@@ -88,6 +113,11 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
     return;  // Nothing expected, ignore
   }
 
+  if(s_timeout_timer) {
+    app_timer_cancel(s_timeout_timer);  // Response was quick enough
+    s_timeout_timer = NULL;
+  }
+
   // Get data response
   if(dict_find(inbox, RequestTypeGetData)) {
     DataValue value;
@@ -133,10 +163,10 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
     int code = dict_find(inbox, AppKeyErrorCode)->value->int32;
     switch(code) {
       case ErrorCodeNoPermissions:
-        APP_LOG(APP_LOG_LEVEL_ERROR, "Permission for this app has not been granted within the Dash API Android app!");
+        APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Permission for this app has not been granted within the Dash API Android app!");
         break;
       case ErrorCodeWrongVersion:
-        APP_LOG(APP_LOG_LEVEL_ERROR, "An incompatible version of the Dash API Android app is installed!");
+        APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: An incompatible version of the Dash API Android app is installed!");
         break;
     }
     s_error_callback(code);
@@ -181,7 +211,10 @@ static bool prepare_outbox() {
 }
 
 static void timeout_handler(void *context) {
+  s_timeout_timer = NULL;
 
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Timed out!");
+  s_error_callback(ErrorCodeUnavailable);
 }
 
 static void send_outbox_callback() {
@@ -209,6 +242,10 @@ void dash_api_get_data(DataType type, DashAPIDataCallback *callback) {
     return;
   }
 
+  if(!data_type_is_valid(type)) {
+    return;
+  }
+
   const int dummy = 0;
   dict_write_int(s_outbox, RequestTypeGetData, &dummy, sizeof(int), true);
   dict_write_int(s_outbox, AppKeyDataType, &type, sizeof(int), true);
@@ -220,6 +257,14 @@ void dash_api_get_data(DataType type, DashAPIDataCallback *callback) {
 
 void dash_api_set_feature(FeatureType type, FeatureState new_state, DashAPIFeatureCallback *callback) {
   if(!prepare_outbox()) {
+    return;
+  }
+
+  if(!feature_type_is_valid(type)) {
+    return;
+  }
+
+  if(!feature_state_is_valid(new_state)) {
     return;
   }
 
@@ -236,6 +281,10 @@ void dash_api_set_feature(FeatureType type, FeatureState new_state, DashAPIFeatu
 
 void dash_api_get_feature(FeatureType type, DashAPIFeatureCallback *callback) {
   if(!prepare_outbox()) {
+    return;
+  }
+
+  if(!feature_type_is_valid(type)) {
     return;
   }
 
@@ -262,6 +311,8 @@ void dash_api_is_available() {
     return;
   }
 
+  const int dummy = 0;
+  dict_write_int(s_outbox, RequestTypeIsAvailable, &dummy, sizeof(int), true);
   const int version = DASH_API_VERSION;
   dict_write_int(s_outbox, AppKeyLibraryVersion, &version, sizeof(int), true);
 
