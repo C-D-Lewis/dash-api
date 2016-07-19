@@ -13,6 +13,8 @@ app.
 - [Set a Feature State](#set-a-feature-state)
 - [Get a Feature State](#get-a-feature-state)
 - [Available Features](#available-features)
+- [Error Codes](#error-codes)
+- [Changelog](#changelog)
 
 
 ## How It Works
@@ -31,7 +33,7 @@ Dash API without any further Android app installation required.
 Developers using this library should direct their users to install 'Dash API for
 Pebble' from the Google Play Store, or check that they have it installed
 already. The library will inform you of this if a request times out by
-delivering `ResultCodeUnavailable` to your `DashAPIErrorCallback`.
+delivering `ErrorCodeUnavailable` to your `DashAPIErrorCallback`.
 
 
 ## Example App
@@ -205,6 +207,20 @@ of the request.
 > 
 > `FeatureTypeHotSpot` may take a few seconds to turn on and off, depending on
 > `the phone model.
+
+
+## Error Codes
+
+When a request fails, the reason will be communicated over app logs, as well as 
+by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
+`dash_api_init()`. The table below describes these values.
+
+| Code | Description | Added In Version |
+| `ErrorCodeSuccess` | The request was made successfully. Not currently used. | 1.1 |
+| `ErrorCodeSendingFailed` | The sending of the request failed, or there was no connection. | 1.1 |
+| `ErrorCodeUnavailable` | The request timed out or the Android app was unavailable, or not installed. | 1.1 |
+| `ErrorCodeNoPermissions` | This app has not been permitted in the Dash API Android app. | 1.1 |
+| `ErrorCodeWrongVersion` | An old or incompatible version of the Dash API Android app is installed. | 1.1 |
 
 
 ## Changelog
