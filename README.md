@@ -100,7 +100,8 @@ that uses this library to show both the watch and phone battery levels.
   static void error_callback(ErrorCode code) {
     if(code == ErrorCodeSuccess) {
       // Available!
-    } else if(code == ErrorCodeUnavailable || ErrorCodeWrongVersion) {
+    } else if(code == ErrorCodeUnavailable 
+           || code == ErrorCodeWrongVersion) {
       // Timed out, or was wrong version of the Android app
     }
   }
