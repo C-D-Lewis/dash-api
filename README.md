@@ -220,7 +220,7 @@ of the request.
 > been turned off.
 > 
 > `FeatureTypeHotSpot` may take a few seconds to turn on and off, depending on
-> `the phone model.
+> the phone model.
 
 
 ## Error Codes
