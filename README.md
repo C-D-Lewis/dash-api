@@ -1,6 +1,6 @@
 # dash-api
 
-*Current version: 1.0.1*
+*Current version: 1.1*
 
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
