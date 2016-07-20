@@ -81,6 +81,7 @@ static bool feature_state_is_valid(FeatureState state) {
  * HEADER:
  *   AppKeyUsesDashAPI
  *   AppKeyAppName
+ *   AppKeyLibraryVersion
  * OTHER:
  *   RequestTypeGetData
  *     AppKeyDataType      - DataType
