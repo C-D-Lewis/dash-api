@@ -230,6 +230,7 @@ by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
 `dash_api_init()`. The table below describes these values.
 
 | Code | Description | Added In Version |
+|------|-------------|------------------|
 | `ErrorCodeSuccess` | The request was made successfully. Used for a `dash_api_check_is_available()` response. | 1.1 |
 | `ErrorCodeSendingFailed` | The sending of the request failed, or there was no connection. | 1.1 |
 | `ErrorCodeUnavailable` | The request timed out or the Android app was unavailable, or not installed. | 1.1 |
