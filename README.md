@@ -92,7 +92,21 @@ that uses this library to show both the watch and phone battery levels.
   events_app_message_open();
   ```
 
-5. Interact with Android through one of `dash_api_get_data()`,
+5. Check the library is available at the other end:
+
+  ```c
+  static void error_callback(ErrorCode code) {
+    if(code == ErrorCodeSuccess) {
+      // Available!
+    } else if(code == ErrorCodeUnavailable || ErrorCodeWrongVersion) {
+      // Timed out, or was wrong version of the Android app
+    }
+  }
+
+  dash_api_check_is_available();
+  ```
+
+6. Interact with Android through one of `dash_api_get_data()`,
    `dash_api_set_feature()`, or `dash_api_get_feature()`. See the sections below
    for code examples.
 
