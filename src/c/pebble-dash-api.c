@@ -35,6 +35,7 @@ static FeatureType s_last_get_feature_type, s_last_set_feature_type;
 static DataType s_last_get_data_type;
 static DictionaryIterator *s_outbox;
 static char s_app_name[32];
+static bool s_in_flight;
 
 /********************************* Internal ***********************************/
 
@@ -60,20 +61,6 @@ static bool feature_state_is_valid(FeatureState state) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: FeatureState is not valid!");
   }
   return valid;
-}
-
-static bool in_flight() {
-  return s_last_get_data_cb || s_last_set_feature_cb || s_last_get_feature_cb;
-}
-
-static void clear_callbacks() {
-  if(s_last_get_data_cb) {
-    s_last_get_data_cb = NULL;
-  } else if(s_last_set_feature_cb) {
-    s_last_set_feature_cb = NULL;
-  } else if(s_last_get_feature_cb) {
-    s_last_get_feature_cb = NULL;
-  }
 }
 
 /**
@@ -108,15 +95,12 @@ static void clear_callbacks() {
  *     AppKeyErrorCode    - ErrorCodeNoPermissions | ErrorCodeWrongVersion
  */
 static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
-  if(!in_flight()) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: no callbacks");
-    return;  // Nothing expected, ignore
-  }
-
   if(s_timeout_timer) {
     app_timer_cancel(s_timeout_timer);  // Response was quick enough
     s_timeout_timer = NULL;
   }
+
+  s_in_flight = false;
 
   // Get data response
   if(dict_find(inbox, RequestTypeGetData)) {
@@ -175,8 +159,6 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
   else {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Unknown message type");
   }
-
-  clear_callbacks();
 }
 
 static void write_header() {
@@ -194,7 +176,7 @@ static bool prepare_outbox() {
     return false;
   }
 
-  if(in_flight()) {
+  if(s_in_flight) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_get_data() failed - request already in progress!");
     s_error_callback(ErrorCodeSendingFailed);
     return false;
@@ -231,6 +213,8 @@ static void send_outbox_callback() {
     s_timeout_timer = NULL;
   }
   s_timeout_timer = app_timer_register(TIMEOUT_MS, timeout_handler, NULL);
+
+  s_in_flight = true;
 }
 
 static void send_outbox() {
