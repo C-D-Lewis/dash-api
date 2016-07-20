@@ -103,4 +103,4 @@ void dash_api_init(char *app_name, DashAPIErrorCallback *callback);
 // Check to see if the Dash API is available. If the Android app is not installed, the request will
 // likely result in ErrorCodeUnavailable. The result will be delievered to the DashAPIErrorCallback
 // registered with dash_api_init().
-void dash_api_is_available();
+void dash_api_check_is_available();

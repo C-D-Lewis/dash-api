@@ -216,7 +216,7 @@ by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
 `dash_api_init()`. The table below describes these values.
 
 | Code | Description | Added In Version |
-| `ErrorCodeSuccess` | The request was made successfully. Not currently used. | 1.1 |
+| `ErrorCodeSuccess` | The request was made successfully. Used for a `dash_api_check_is_available()` response. | 1.1 |
 | `ErrorCodeSendingFailed` | The sending of the request failed, or there was no connection. | 1.1 |
 | `ErrorCodeUnavailable` | The request timed out or the Android app was unavailable, or not installed. | 1.1 |
 | `ErrorCodeNoPermissions` | This app has not been permitted in the Dash API Android app. | 1.1 |
@@ -237,8 +237,11 @@ by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
 - Change signatures of the main callbacks, directed failed result of requests to 
   the `DashAPIErrorCallback`.
 - Add permission switches in the Android app for clients that wish to _set_ 
-  a feature state. Reading is unaffected.
+  a feature state. Reading data is unaffected, and does not require permission.
 - Added a timeout mechanism to inform when the Android app may be unavailable.
+- Added `dash_api_check_is_available()` to check the library is available. 
+  `ErrorCodeSuccess` will be delivered to the `  DashAPIErrorCallback` if it is 
+  available.
 
 
 ## TODO

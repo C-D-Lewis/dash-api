@@ -183,6 +183,7 @@ static void write_header() {
   const int dummy = 0;
   dict_write_int(s_outbox, AppKeyUsesDashAPI, &dummy, sizeof(int), true);
   dict_write_cstring(s_outbox, AppKeyAppName, s_app_name);
+  dict_write_cstring(s_outbox, AppKeyLibraryVersion, &DASH_API_VERSION);
 }
 
 static bool prepare_outbox() {
@@ -306,15 +307,13 @@ void dash_api_init(char *app_name, DashAPIErrorCallback *callback) {
   events_app_message_request_outbox_size(OUTBOX_SIZE);
 }
 
-void dash_api_is_available() {
+void dash_api_check_is_available() {
   if(!prepare_outbox()) {
     return;
   }
 
   const int dummy = 0;
   dict_write_int(s_outbox, RequestTypeIsAvailable, &dummy, sizeof(int), true);
-  const int version = DASH_API_VERSION;
-  dict_write_int(s_outbox, AppKeyLibraryVersion, &version, sizeof(int), true);
 
   send_outbox();
 }
