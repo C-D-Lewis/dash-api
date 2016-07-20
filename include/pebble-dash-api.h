@@ -2,7 +2,7 @@
 
 #include <pebble.h>
 
-#define DASH_API_VERSION 1.1
+#define DASH_API_VERSION "1.1"
 
 /******************************** Enumerations ********************************/
 

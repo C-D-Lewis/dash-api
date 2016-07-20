@@ -183,7 +183,8 @@ static void write_header() {
   const int dummy = 0;
   dict_write_int(s_outbox, AppKeyUsesDashAPI, &dummy, sizeof(int), true);
   dict_write_cstring(s_outbox, AppKeyAppName, s_app_name);
-  dict_write_cstring(s_outbox, AppKeyLibraryVersion, &DASH_API_VERSION);
+  const char *version = DASH_API_VERSION;
+  dict_write_cstring(s_outbox, AppKeyLibraryVersion, version);
 }
 
 static bool prepare_outbox() {
