@@ -1,6 +1,6 @@
 # dash-api
 
-*Current API version: 1.1*
+*Current API version: 1.1.1*
 
 *Current published Android app version: 1.1*
 
@@ -273,6 +273,9 @@ by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
 - Added `dash_api_check_is_available()` to check the library is available. 
   `ErrorCodeSuccess` will be delivered to the `  DashAPIErrorCallback` if it is 
   available.
+
+**1.1.1**
+- Update README.md on NPM.
 
 
 ## TODO
