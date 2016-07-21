@@ -2,7 +2,7 @@
 
 *Current API version: 1.1*
 
-*Current published Android app version: 1.0*
+*Current published Android app version: 1.1*
 
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
@@ -42,6 +42,17 @@ delivering `ErrorCodeUnavailable` to your `DashAPIErrorCallback`.
 
 [Dual Gauge](https://github.com/C-D-Lewis/dual-gauge) is an example watchface
 that uses this library to show both the watch and phone battery levels.
+
+
+## Important Notes
+
+- Since all messages to and from Pebble use the same outbox, developers should
+  not attempt simultaneous requests with the Dash API. Once the callback has been
+  received for one request it is safe to then make the next, etc. 
+
+- When using `dash_api_check_is_available()`, wait for `ErrorCodeSuccess` in the
+  `error_callback` before making further requests. This is a good best practice
+  to follow when your app opens and begins making queries to the Dash API.
 
 
 ## Setting Up
@@ -96,6 +107,8 @@ that uses this library to show both the watch and phone battery levels.
 
 5. Check the library is available at the other end:
 
+  > Wait for the callback before making further requests.
+
   ```c
   static void error_callback(ErrorCode code) {
     if(code == ErrorCodeSuccess) {
@@ -137,7 +150,7 @@ See the information below the table to learn how to read the received data.
 |------|------------------|---------------|------------------|
 | `DataTypeBatteryPercent` | `integer_value` | `56` | 1.0 |
 | `DataTypeWifiNetworkName` | `string_value` | `BTHub3-NCNR` | 1.0 |
-| `DataTypeStorageFreePercent` | `integer_value` | `22` | 1.0 |
+| `DataTypeStoragePercentUsed` | `integer_value` | `22` | 1.0 |
 | `DataTypeStorageFreeGBString` | `string_value` | `6.2 GB` | 1.0 |
 | `DataTypeGSMOperatorName` | `string_value` | `Three UK` | 1.0 |
 | `DataTypeGSMStrength` | `integer_value` | `68` | 1.0 |
@@ -264,5 +277,9 @@ by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
 
 ## TODO
 
+These items are desirable, but not guaranteed to be added. 
+
 - Protocol can be optimized into fewer keys
-- Investigate popular requests (Unread SMS count, missed calls, next calendar event etc)
+- Unread SMS count, missed calls etc
+- Next Calendar event
+- Music control
