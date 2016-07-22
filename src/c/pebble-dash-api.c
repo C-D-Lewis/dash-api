@@ -40,9 +40,9 @@ static bool s_in_flight;
 /********************************* Internal ***********************************/
 
 static bool data_type_is_valid(DataType type) {
-  bool valid = type >= DataTypeBatteryPercent && type <= DataTypeStorageFreeGBString;
+  bool valid = type >= DataTypeBatteryPercent && type <= DataTypeUnreadSMSCount;
   if(!valid) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: DataType is not valid!");
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: DataType is not valid: %d", type);
   }
   return valid;
 }
@@ -50,7 +50,7 @@ static bool data_type_is_valid(DataType type) {
 static bool feature_type_is_valid(FeatureType type) {
   bool valid = type >= FeatureTypeWifi && type <= FeatureTypeAutoBrightness;
   if(!valid) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: FeatureType is not valid!");
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: FeatureType is not valid: %d", type);
   }
   return valid;
 }
@@ -58,7 +58,7 @@ static bool feature_type_is_valid(FeatureType type) {
 static bool feature_state_is_valid(FeatureState state) {
   bool valid = state >= FeatureStateOff && state <= FeatureStateRingerSilent;
   if(!valid) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: FeatureState is not valid!");
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: FeatureState is not valid: %d" + state);
   }
   return valid;
 }
@@ -113,6 +113,7 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
       case DataTypeBatteryPercent:
       case DataTypeGSMStrength:
       case DataTypeStoragePercentUsed:
+      case DataTypeUnreadSMSCount:
         value.integer_value = dict_find(inbox, AppKeyDataValue)->value->int32;
         s_last_get_data_cb(type, value);
         break;
@@ -125,6 +126,10 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
         strcpy(value.string_value, dict_find(inbox, AppKeyDataValue)->value->cstring);
         s_last_get_data_cb(type, value);
         free(value.string_value);
+        break;
+
+      default:
+        APP_LOG(APP_LOG_LEVEL_ERROR, "Unknown DataType! %d", type);
         break;
     }
   }

@@ -155,6 +155,11 @@ See the information below the table to learn how to read the received data.
 | `DataTypeStorageFreeGBString` | `string_value` | `6.2 GB` | 1.0 |
 | `DataTypeGSMOperatorName` | `string_value` | `Three UK` | 1.0 |
 | `DataTypeGSMStrength` | `integer_value` | `68` | 1.0 |
+| `DataTypeUnreadSMSCount` | `integer_value` | `2` | 1.2 |
+
+> The value returned by `DataTypeUnreadSMSCount` may also count unread messages
+> in apps other than the built in 'Messenger' Android app, as well as unread
+> messages in archived conversations.
 
 `ResultValue` is a structure of two members to enable multiple data types. For
 example, battery percentage will be read as an integer:
@@ -277,6 +282,9 @@ by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
 
 **1.1.1**
 - Update README.md on NPM.
+
+**1.2**
+- Add `DataTypeUnreadSMSCount`.
 
 
 ## TODO

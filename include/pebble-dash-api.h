@@ -2,7 +2,7 @@
 
 #include <pebble.h>
 
-#define DASH_API_VERSION "1.1"
+#define DASH_API_VERSION "1.2"
 
 /******************************** Enumerations ********************************/
 
@@ -14,6 +14,7 @@ typedef enum {
   DataTypeWifiNetworkName,          // (string_value)  The Wifi network name
   DataTypeStoragePercentUsed,       // (integer_value) The used internal storage space as a percentage
   DataTypeStorageFreeGBString,      // (string_value)  The free space of the phone, measured in GB
+  DataTypeUnreadSMSCount,           // (integer_value) The number of unread SMS messages, if it could be read.
 } DataType;
 
 // Types of feature change that can be requested of the phone
