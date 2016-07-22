@@ -107,7 +107,8 @@ that uses this library to show both the watch and phone battery levels.
 
 5. Check the library is available at the other end:
 
-  > Wait for the callback before making further requests.
+  > This can be considered optional - all requests have a timeout and Bluetooth 
+    connectivity check built in.
 
   ```c
   static void error_callback(ErrorCode code) {
