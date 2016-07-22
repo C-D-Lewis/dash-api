@@ -1,6 +1,6 @@
 # dash-api
 
-*Current API version: 1.1.1*
+*Current API version: 1.2*
 
 *Current published Android app version: 1.1*
 
