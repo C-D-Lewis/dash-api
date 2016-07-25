@@ -40,7 +40,7 @@ static bool s_in_flight;
 /********************************* Internal ***********************************/
 
 static bool data_type_is_valid(DataType type) {
-  bool valid = type >= DataTypeBatteryPercent && type <= DataTypeUnreadSMSCount;
+  bool valid = type >= DataTypeBatteryPercent && type <= DataTypeNextCalendarEventTwoLine;
   if(!valid) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: DataType is not valid: %d", type);
   }
@@ -122,6 +122,8 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
       case DataTypeWifiNetworkName:
       case DataTypeGSMOperatorName:
       case DataTypeStorageFreeGBString:
+      case DataTypeNextCalendarEventOneLine:
+      case DataTypeNextCalendarEventTwoLine:
         value.string_value = malloc(INBOX_SIZE);
         strcpy(value.string_value, dict_find(inbox, AppKeyDataValue)->value->cstring);
         s_last_get_data_cb(type, value);

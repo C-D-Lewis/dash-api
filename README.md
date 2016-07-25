@@ -154,6 +154,8 @@ See the information below the table to learn how to read the received data.
 | `DataTypeGSMOperatorName` | `string_value` | `Three UK` | 1.0 |
 | `DataTypeGSMStrength` | `integer_value` | `68` | 1.0 |
 | `DataTypeUnreadSMSCount` | `integer_value` | `2` | 1.2 |
+| `DataTypeNextCalendarEventOneLine` | `string_value` | `14:00 Design Review` | 1.2 |
+| `DataTypeNextCalendarEventTwoLine` | `string_value` | `24 Jul 14:00\nDesign Review` | 1.2 |
 
 > The value returned by `DataTypeUnreadSMSCount` may also count unread messages
 > in apps other than the built in 'Messenger' Android app, as well as unread

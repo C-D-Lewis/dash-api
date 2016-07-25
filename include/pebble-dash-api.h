@@ -15,6 +15,13 @@ typedef enum {
   DataTypeStoragePercentUsed,       // (integer_value) The used internal storage space as a percentage
   DataTypeStorageFreeGBString,      // (string_value)  The free space of the phone, measured in GB
   DataTypeUnreadSMSCount,           // (integer_value) The number of unread SMS messages, if it could be read.
+  DataTypeNextCalendarEventOneLine, // (string_value)  A short-form of the next calendar event, if any. "" if not.
+                                    //                 The string will the time and title (e.g.: "14:00 Design Review")
+                                    //                 This is derived from a collection of all events in all calendars
+                                    //                 that occur within the next 24 hours.
+  DataTypeNextCalendarEventTwoLine  // (string_value)  A two lined version of DataTypeNextCalendarEventOneLine.
+                                    //                 The string will the time date on top, and title below 
+                                    //                 (e.g.: "24 Jul 14:00\nDesign Review").
 } DataType;
 
 // Types of feature change that can be requested of the phone
