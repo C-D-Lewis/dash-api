@@ -11,10 +11,8 @@ app.
 
 - [Setting Up](#setting-up)
 - [Get Data](#get-data)
-- [Available Data](#available-data)
 - [Set a Feature State](#set-a-feature-state)
 - [Get a Feature State](#get-a-feature-state)
-- [Available Features](#available-features)
 - [Error Codes](#error-codes)
 - [Changelog](#changelog)
 
@@ -38,13 +36,13 @@ already. The library will inform you of this if a request times out by
 delivering `ErrorCodeUnavailable` to your `DashAPIErrorCallback`.
 
 
-## Example App
+### Example App
 
 [Dual Gauge](https://github.com/C-D-Lewis/dual-gauge) is an example watchface
 that uses this library to show both the watch and phone battery levels.
 
 
-## Important Notes
+### Important Notes
 
 - Since all messages to and from Pebble use the same outbox, developers should
   not attempt simultaneous requests with the Dash API. Once the callback has been
@@ -142,7 +140,7 @@ dash_api_get_data(DataTypeBatteryPercent, get_callback);
 ```
 
 
-## Available Data
+### Available Data
 
 The table below details all the data items currently available via the Dash API.
 See the information below the table to learn how to read the received data.
@@ -160,6 +158,9 @@ See the information below the table to learn how to read the received data.
 > The value returned by `DataTypeUnreadSMSCount` may also count unread messages
 > in apps other than the built in 'Messenger' Android app, as well as unread
 > messages in archived conversations.
+
+
+### Using Received Data
 
 `ResultValue` is a structure of two members to enable multiple data types. For
 example, battery percentage will be read as an integer:
@@ -216,7 +217,7 @@ dash_api_get_feature(FeatureTypeWifi, get_feature_callback);
 ```
 
 
-## Available Features
+### Available Features
 
 The table below details all the Android features that can be interacted with via
 the Dash API. See the information below the table to learn how to read the
