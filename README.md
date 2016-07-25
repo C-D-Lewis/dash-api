@@ -145,7 +145,7 @@ dash_api_get_data(DataTypeBatteryPercent, get_callback);
 The table below details all the data items currently available via the Dash API.
 See the information below the table to learn how to read the received data.
 
-| Name | ResultValue Type | Example Value | Added In Version |
+| Name | DataValue Type | Example Value | Added In Version |
 |------|------------------|---------------|------------------|
 | `DataTypeBatteryPercent` | `integer_value` | `56` | 1.0 |
 | `DataTypeWifiNetworkName` | `string_value` | `BTHub3-NCNR` | 1.0 |
@@ -162,7 +162,7 @@ See the information below the table to learn how to read the received data.
 
 ### Using Received Data
 
-`ResultValue` is a structure of two members to enable multiple data types. For
+`DataValue` is a structure of two members to enable multiple data types. For
 example, battery percentage will be read as an integer:
 
 ```c
