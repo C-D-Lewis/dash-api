@@ -298,6 +298,4 @@ by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
 These items are desirable, but not guaranteed to be added. 
 
 - Protocol can be optimized into fewer keys
-- Unread SMS count, missed calls etc
-- Next Calendar event
 - Music control
