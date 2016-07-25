@@ -2,7 +2,7 @@
 
 *Current API version: 1.2*
 
-*Current published Android app version: 1.1*
+*Current published Android app version: 1.2*
 
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
