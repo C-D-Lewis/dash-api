@@ -287,7 +287,7 @@ by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
 - Update README.md on NPM.
 
 **1.2**
-- Add <= version check instead of ==. This means app built with 1.1 will be 
+- Add <= version check instead of ==. This means apps built with 1.1 will be 
   served by 1.2, and up.
 - Add `DataTypeUnreadSMSCount`, `DataTypeNextCalendarEventOneLine`, and 
   `DataTypeNextCalendarEventTwoLine`.
