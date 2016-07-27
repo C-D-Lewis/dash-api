@@ -300,3 +300,4 @@ These items are desirable, but not guaranteed to be added.
 - Protocol can be optimized into fewer keys
 - Music control
 - Testing/data mockup API
+- `dash_api_error_code_to_string()`
