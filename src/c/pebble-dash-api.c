@@ -35,7 +35,7 @@ static FeatureType s_last_get_feature_type, s_last_set_feature_type;
 static DataType s_last_get_data_type;
 static DictionaryIterator *s_outbox;
 static char s_app_name[32];
-static bool s_in_flight;
+static bool s_in_flight, s_initialized;
 
 /********************************* Internal ***********************************/
 
@@ -178,6 +178,12 @@ static void write_header() {
 }
 
 static bool prepare_outbox() {
+  if(!s_initialized) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "dash_api_init() not yet called!");
+    s_error_callback(ErrorCodeSendingFailed);
+    return false;
+  }
+
   if(!connection_service_peek_pebble_app_connection()) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Bluetooth is disconnected!");
     s_error_callback(ErrorCodeSendingFailed);
@@ -298,6 +304,8 @@ void dash_api_init(char *app_name, DashAPIErrorCallback *callback) {
   events_app_message_register_inbox_received(inbox_received_handler, NULL);
   events_app_message_request_inbox_size(INBOX_SIZE);
   events_app_message_request_outbox_size(OUTBOX_SIZE);
+
+  s_initialized = true;
 }
 
 void dash_api_check_is_available() {
