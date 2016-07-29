@@ -262,6 +262,9 @@ by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
 | `ErrorCodeNoPermissions` | This app has not been permitted in the Dash API Android app. | 1.1 |
 | `ErrorCodeWrongVersion` | An old or incompatible version of the Dash API Android app is installed. | 1.1 |
 
+Use `dash_api_error_code_to_string()` to get an appropriate string to show to 
+the user in case of an error above.
+
 
 ## Changelog
 
@@ -292,12 +295,17 @@ by delivering a `ErrorCode` value to the `DashAPIErrorCallback` registered with
 - Add `DataTypeUnreadSMSCount`, `DataTypeNextCalendarEventOneLine`, and 
   `DataTypeNextCalendarEventTwoLine`.
 
+**1.3**
+- Add check that `dash_api_init()` has been called before any requests can be 
+  made.
+- Add `dash_api_error_code_to_string()`.
+
 
 ## TODO
 
 These items are desirable, but not guaranteed to be added. 
 
-- Protocol can be optimized into fewer keys
+- Enable concurrent requests (sacrifice switch for checking for all types)
 - Music control
 - Testing/data mockup API
 - Provide a template Window to show users that they need to update the Android app.

@@ -131,7 +131,7 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
         break;
 
       default:
-        APP_LOG(APP_LOG_LEVEL_ERROR, "Unknown DataType! %d", type);
+        APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Unknown DataType! %d", type);
         break;
     }
   }
@@ -179,7 +179,7 @@ static void write_header() {
 
 static bool prepare_outbox() {
   if(!s_initialized) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "dash_api_init() not yet called!");
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called!");
     s_error_callback(ErrorCodeSendingFailed);
     return false;
   }
