@@ -112,3 +112,8 @@ void dash_api_init(char *app_name, DashAPIErrorCallback *callback);
 // likely result in ErrorCodeUnavailable. The result will be delievered to the DashAPIErrorCallback
 // registered with dash_api_init().
 void dash_api_check_is_available();
+
+// Returns a user-friendly string to display in case of an error occuring which corresponds to 
+// an ErrorCode value.
+char* dash_api_error_code_to_string(ErrorCode code);
+

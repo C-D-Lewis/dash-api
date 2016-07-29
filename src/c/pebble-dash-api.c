@@ -310,3 +310,18 @@ void dash_api_check_is_available() {
 
   send_outbox();
 }
+
+char* dash_api_error_code_to_string(ErrorCode code) {
+  switch(code) {
+    case ErrorCodeSuccess:       return "The request was successful.";
+    case ErrorCodeSendingFailed: return "The request failed to send.";
+    case ErrorCodeUnavailable:   return "The Dash API Android app is not installed, or the request timed out.";
+    case ErrorCodeNoPermissions: return "This app does not have write permission turned on in the Dash API Android app.";
+    case ErrorCodeWrongVersion:  return "An incompatible version of the Dash API Android app is installed.";
+    default: {
+      static char s_err_buff[32];
+      snprintf(s_err_buff, sizeof(s_err_buff), "Unknown error (code %d)", code);
+      return &s_err_buff[0];
+    } break;
+  }
+}
