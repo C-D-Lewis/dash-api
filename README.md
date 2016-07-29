@@ -307,5 +307,4 @@ These items are desirable, but not guaranteed to be added.
 
 - Enable concurrent requests (sacrifice switch for checking for all types)
 - Music control
-- Testing/data mockup API
 - Provide a template Window to show users that they need to update the Android app.

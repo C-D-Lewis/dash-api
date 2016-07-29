@@ -115,5 +115,38 @@ void dash_api_check_is_available();
 
 // Returns a user-friendly string to display in case of an error occuring which corresponds to 
 // an ErrorCode value.
+// Parameters:
+//   code  - The ErrorCode value to obtain in human-readable form.
+// Returns:
+//   char* - A human-readable string for this ErrorCode.
 char* dash_api_error_code_to_string(ErrorCode code);
 
+// Use within 10s of making a request to cancel the timeout and fake a response from the Android app.
+// Useful for testing in the emulator, or if an Android phone is unavailable for testing.
+// Parameters:
+//   type          - The DataType of the fake response. In a real response, this will always match that of
+//                   the original request, and use only one of integer_value or string_value depending on the
+//                   DataType in question.
+//   integer_value - The integer value of the DataType requested, if applicable to that type. For example,
+//                   DataTypeUnreadSMSCount returns an integer.
+//   string_value  - The string value of the DataType requested, if applicable to that type. For example,
+//                   DataTypeWifiNetworkName returns a string.
+void dash_api_fake_get_data_response(DataType type, int integer_value, char *string_value);
+
+// As for dash_api_fake_get_data_response(), but for a dash_api_set_feature() request.
+// Parameters:
+//   type      - The FeatureType of the fake response. In a real response, this will always match that of the
+//               original request.
+//   new_state - The new state of the FeatureType once the request was actioned. For example, a request to set
+//               FeatureTypeWifi to FeatureStateOn will include FeatureStateOn as new_state in the response.
+void dash_api_fake_set_feature_response(FeatureType type, FeatureState new_state);
+
+// As for dash_api_fake_set_feature_response(), but for a dash_api_get_feature() request.
+// Parameters:
+//   type      - The FeatureType of the fake response. In a real response, this will always match that of the
+//               original request.
+//   new_state - The current state of the FeatureType after being queried.
+void dash_api_fake_get_feature_response(FeatureType type, FeatureState new_state);
+
+// Use within 10s of making a request to cancel the timeout and fake an error from the Android app.
+void dash_api_fake_error(ErrorCode code);

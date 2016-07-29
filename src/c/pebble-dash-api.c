@@ -63,6 +63,13 @@ static bool feature_state_is_valid(FeatureState state) {
   return valid;
 }
 
+static void cancel_timeout() {
+  if(s_timeout_timer) {
+    app_timer_cancel(s_timeout_timer);
+    s_timeout_timer = NULL;
+  }
+}
+
 /**
  * Packet Formats 
  *
@@ -96,11 +103,7 @@ static bool feature_state_is_valid(FeatureState state) {
  *     AppKeyErrorCode    - ErrorCodeNoPermissions | ErrorCodeWrongVersion
  */
 static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
-  if(s_timeout_timer) {
-    app_timer_cancel(s_timeout_timer);  // Response was quick enough
-    s_timeout_timer = NULL;
-  }
-
+  cancel_timeout(); // Response was quick enough
   s_in_flight = false;
 
   // Get data response
@@ -115,7 +118,9 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
       case DataTypeStoragePercentUsed:
       case DataTypeUnreadSMSCount:
         value.integer_value = dict_find(inbox, AppKeyDataValue)->value->int32;
-        s_last_get_data_cb(type, value);
+        if(s_last_get_data_cb) {
+          s_last_get_data_cb(type, value);
+        }
         break;
 
       // Data type will be string
@@ -126,7 +131,9 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
       case DataTypeNextCalendarEventTwoLine:
         value.string_value = malloc(INBOX_SIZE);
         strcpy(value.string_value, dict_find(inbox, AppKeyDataValue)->value->cstring);
-        s_last_get_data_cb(type, value);
+        if(s_last_get_data_cb) {
+          s_last_get_data_cb(type, value);
+        }
         free(value.string_value);
         break;
 
@@ -179,7 +186,7 @@ static void write_header() {
 
 static bool prepare_outbox() {
   if(!s_initialized) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called!");
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
     s_error_callback(ErrorCodeSendingFailed);
     return false;
   }
@@ -222,10 +229,7 @@ static void send_outbox_callback() {
   }
 
   // Begin timeout timer
-  if(s_timeout_timer) {
-    app_timer_cancel(s_timeout_timer);
-    s_timeout_timer = NULL;
-  }
+  cancel_timeout();
   s_timeout_timer = app_timer_register(TIMEOUT_MS, timeout_handler, NULL);
 
   s_in_flight = true;
@@ -331,5 +335,78 @@ char* dash_api_error_code_to_string(ErrorCode code) {
       snprintf(s_err_buff, sizeof(s_err_buff), "Unknown error (code %d)", code);
       return &s_err_buff[0];
     } break;
+  }
+}
+
+void dash_api_fake_get_data_response(DataType type, int integer_value, char *string_value) {
+  if(!s_initialized) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
+  }
+
+  if(!s_in_flight) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: There was no request in flight.");
+    return;
+  }
+
+  cancel_timeout();
+
+  DataValue value;
+  value.integer_value = integer_value;
+  value.string_value = malloc(INBOX_SIZE);
+  strcpy(value.string_value, string_value);
+  if(s_last_get_data_cb) {
+    s_last_get_data_cb(type, value);
+  }
+  free(value.string_value);
+}
+
+void dash_api_fake_set_feature_response(FeatureType type, FeatureState new_state) {
+  if(!s_initialized) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
+  }
+
+  if(!s_in_flight) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: There was no request in flight.");
+    return;
+  }
+
+  cancel_timeout();
+
+  if(s_last_set_feature_cb) {
+    s_last_set_feature_cb(type, new_state);
+  }
+}
+
+void dash_api_fake_get_feature_response(FeatureType type, FeatureState new_state) {
+  if(!s_initialized) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
+  }
+
+  if(!s_in_flight) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: There was no request in flight.");
+    return;
+  }
+
+  cancel_timeout();
+
+  if(s_last_set_feature_cb) {
+    s_last_get_feature_cb(type, new_state);
+  }
+}
+
+void dash_api_fake_error(ErrorCode code) {
+  if(!s_initialized) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
+  }
+
+  if(!s_in_flight) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: There was no request in flight.");
+    return;
+  }
+
+  cancel_timeout();
+
+  if(s_error_callback) {
+    s_error_callback(code);
   }
 }
