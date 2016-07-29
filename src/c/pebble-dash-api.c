@@ -353,7 +353,9 @@ void dash_api_fake_get_data_response(DataType type, int integer_value, char *str
   DataValue value;
   value.integer_value = integer_value;
   value.string_value = malloc(INBOX_SIZE);
-  strcpy(value.string_value, string_value);
+  if(string_value) {
+    strcpy(value.string_value, string_value);
+  }
   if(s_last_get_data_cb) {
     s_last_get_data_cb(type, value);
   }

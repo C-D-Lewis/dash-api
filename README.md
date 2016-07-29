@@ -13,6 +13,7 @@ app.
 - [Get Data](#get-data)
 - [Set a Feature State](#set-a-feature-state)
 - [Get a Feature State](#get-a-feature-state)
+- [Testing Responses](#testing-responses)
 - [Error Codes](#error-codes)
 - [Changelog](#changelog)
 
@@ -246,6 +247,26 @@ of the request.
 > 
 > `FeatureTypeHotSpot` may take a few seconds to turn on and off, depending on
 > the phone model.
+
+
+## Testing Responses
+
+If testing in the Pebble SDK emulator, or if an Android phone is not available,
+you can rig up fake responses as if they came from the Dash API. See any of the 
+`dash_api_fake_` family of functions to learn how to use them.
+
+Fake responses should be triggered through these functions immediately (or 
+after a suitable delay up to 10 seconds for realism), to fit the 
+request-response model. For example:
+
+```c
+const DataType type = DataTypeUnreadSMSCount;
+dash_api_get_data(type, get_data_callback);
+
+#if defined(TEST)
+dash_api_fake_get_data_response(type, 5, NULL);
+#endif
+```
 
 
 ## Error Codes
