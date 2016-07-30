@@ -317,6 +317,8 @@ the user in case of an error above.
   `DataTypeNextCalendarEventTwoLine`.
 
 **1.3**
+- Add `dash_api_fake_` family of functions to allow faking of responses when 
+  testing in the emulator, or when an Android phone isn't available.
 - Add check that `dash_api_init()` has been called before any requests can be 
   made.
 - Add `dash_api_error_code_to_string()`.
