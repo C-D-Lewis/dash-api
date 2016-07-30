@@ -343,11 +343,6 @@ void dash_api_fake_get_data_response(DataType type, int integer_value, char *str
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
   }
 
-  if(!s_in_flight) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: There was no request in flight.");
-    return;
-  }
-
   cancel_timeout();
 
   DataValue value;
@@ -367,11 +362,6 @@ void dash_api_fake_set_feature_response(FeatureType type, FeatureState new_state
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
   }
 
-  if(!s_in_flight) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: There was no request in flight.");
-    return;
-  }
-
   cancel_timeout();
 
   if(s_last_set_feature_cb) {
@@ -384,11 +374,6 @@ void dash_api_fake_get_feature_response(FeatureType type, FeatureState new_state
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
   }
 
-  if(!s_in_flight) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: There was no request in flight.");
-    return;
-  }
-
   cancel_timeout();
 
   if(s_last_get_feature_cb) {
@@ -399,11 +384,6 @@ void dash_api_fake_get_feature_response(FeatureType type, FeatureState new_state
 void dash_api_fake_error(ErrorCode code) {
   if(!s_initialized) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
-  }
-
-  if(!s_in_flight) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: There was no request in flight.");
-    return;
   }
 
   cancel_timeout();
