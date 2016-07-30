@@ -391,7 +391,7 @@ void dash_api_fake_get_feature_response(FeatureType type, FeatureState new_state
 
   cancel_timeout();
 
-  if(s_last_set_feature_cb) {
+  if(s_last_get_feature_cb) {
     s_last_get_feature_cb(type, new_state);
   }
 }
