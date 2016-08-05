@@ -30,7 +30,7 @@ static DashAPIDataCallback *s_last_get_data_cb;
 static DashAPIFeatureCallback *s_last_set_feature_cb, *s_last_get_feature_cb;
 static DashAPIErrorCallback *s_error_callback;
 
-static AppTimer *s_timeout_timer;
+static AppTimer *s_timeout_timer, *s_send_timer;
 static FeatureType s_last_get_feature_type, s_last_set_feature_type;
 static DataType s_last_get_data_type;
 static DictionaryIterator *s_outbox;
@@ -63,10 +63,17 @@ static bool feature_state_is_valid(FeatureState state) {
   return valid;
 }
 
-static void cancel_timeout() {
+static void cancel_timeout_timer() {
   if(s_timeout_timer) {
     app_timer_cancel(s_timeout_timer);
     s_timeout_timer = NULL;
+  }
+}
+
+static void cancel_send_timer() {
+  if(s_send_timer) {
+    app_timer_cancel(s_send_timer);
+    s_send_timer = NULL;
   }
 }
 
@@ -103,7 +110,7 @@ static void cancel_timeout() {
  *     AppKeyErrorCode    - ErrorCodeNoPermissions | ErrorCodeWrongVersion
  */
 static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
-  cancel_timeout(); // Response was quick enough
+  cancel_timeout_timer(); // Response was quick enough
   s_in_flight = false;
 
   // Get data response
@@ -223,20 +230,23 @@ static void timeout_handler(void *context) {
 }
 
 static void send_outbox_callback() {
+  s_send_timer = NULL;   // It went off
+
   if(app_message_outbox_send() != APP_MSG_OK) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error sending outbox!");
     s_error_callback(ErrorCodeSendingFailed);
   }
 
   // Begin timeout timer
-  cancel_timeout();
+  cancel_timeout_timer();
   s_timeout_timer = app_timer_register(TIMEOUT_MS, timeout_handler, NULL);
 
   s_in_flight = true;
 }
 
 static void send_outbox() {
-  app_timer_register(DELAY_MS, send_outbox_callback, NULL);
+  cancel_send_timer();
+  s_send_timer = app_timer_register(DELAY_MS, send_outbox_callback, NULL);
 }
 
 /************************************ API *************************************/
@@ -343,7 +353,8 @@ void dash_api_fake_get_data_response(DataType type, int integer_value, char *str
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
   }
 
-  cancel_timeout();
+  cancel_timeout_timer();
+  cancel_send_timer();
 
   DataValue value;
   value.integer_value = integer_value;
@@ -362,7 +373,8 @@ void dash_api_fake_set_feature_response(FeatureType type, FeatureState new_state
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
   }
 
-  cancel_timeout();
+  cancel_timeout_timer();
+  cancel_send_timer();
 
   if(s_last_set_feature_cb) {
     s_last_set_feature_cb(type, new_state);
@@ -374,7 +386,8 @@ void dash_api_fake_get_feature_response(FeatureType type, FeatureState new_state
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
   }
 
-  cancel_timeout();
+  cancel_timeout_timer();
+  cancel_send_timer();
 
   if(s_last_get_feature_cb) {
     s_last_get_feature_cb(type, new_state);
@@ -386,7 +399,8 @@ void dash_api_fake_error(ErrorCode code) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: dash_api_init() not yet called.");
   }
 
-  cancel_timeout();
+  cancel_timeout_timer();
+  cancel_send_timer();
 
   if(s_error_callback) {
     s_error_callback(code);

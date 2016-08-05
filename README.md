@@ -1,6 +1,6 @@
 # dash-api
 
-*Current API version: 1.3*
+*Current API version: 1.3.1*
 
 *Current published Android app version: 1.2*
 
@@ -322,6 +322,9 @@ the user in case of an error above.
 - Add check that `dash_api_init()` has been called before any requests can be 
   made.
 - Add `dash_api_error_code_to_string()`.
+
+**1.3.1**
+- Fix timeout when faking a response immediately after making a request.
 
 
 ## TODO
