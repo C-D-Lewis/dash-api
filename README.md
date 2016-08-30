@@ -1,8 +1,8 @@
 # dash-api
 
-*Current API version: 1.3.1*
+*Current API version: 1.4.0*
 
-*Current published Android app version: 1.2*
+*Current published Android app version: 1.2 (library 1.4.0 compatible)*
 
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
@@ -333,4 +333,5 @@ These items are desirable, but not guaranteed to be added.
 
 - Enable concurrent requests (sacrifice switch for checking for all types)
 - Music control
+- Next Android alarm time
 - Provide a template Window to show users that they need to update the Android app.
