@@ -326,6 +326,9 @@ the user in case of an error above.
 **1.3.1**
 - Fix timeout when faking a response immediately after making a request.
 
+**1.4.0**
+- Build for Diorite with SDK 4.0.
+
 
 ## TODO
 
