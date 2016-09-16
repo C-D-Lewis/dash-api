@@ -35,7 +35,7 @@ static FeatureType s_last_get_feature_type, s_last_set_feature_type;
 static DataType s_last_get_data_type;
 static DictionaryIterator *s_outbox;
 static char s_app_name[32];
-static bool s_in_flight, s_initialized;
+static bool s_in_flight, s_initialized, s_log_requests;
 
 /********************************* Internal ***********************************/
 
@@ -249,6 +249,45 @@ static void send_outbox() {
   s_send_timer = app_timer_register(DELAY_MS, send_outbox_callback, NULL);
 }
 
+static char* datatype_to_string(DataType type) {
+  switch(type) {
+    case DataTypeBatteryPercent: return "DataTypeBatteryPercent";
+    case DataTypeGSMOperatorName: return "DataTypeGSMOperatorName"; 
+    case DataTypeGSMStrength: return "DataTypeGSMStrength";
+    case DataTypeWifiNetworkName: return "DataTypeWifiNetworkName";
+    case DataTypeStoragePercentUsed: return "DataTypeStoragePercentUsed";
+    case DataTypeStorageFreeGBString: return "DataTypeStorageFreeGBString";
+    case DataTypeUnreadSMSCount: return "DataTypeUnreadSMSCount";
+    case DataTypeNextCalendarEventOneLine: return "DataTypeNextCalendarEventOneLine";
+    case DataTypeNextCalendarEventTwoLine: return "DataTypeNextCalendarEventTwoLine";
+    default: return "Unknown DataType";
+  }
+}
+
+static char* featuretype_to_string(FeatureType type) {
+  switch(type) {
+    case FeatureTypeWifi: return "FeatureTypeWifi";
+    case FeatureTypeBluetooth: return "FeatureTypeBluetooth";
+    case FeatureTypeRinger: return "FeatureTypeRinger";
+    case FeatureTypeAutoSync: return "FeatureTypeAutoSync";
+    case FeatureTypeHotSpot: return "FeatureTypeHotSpot";
+    case FeatureTypeAutoBrightness: return "FeatureTypeAutoBrightness";
+    default: return "Unknown FeatureType";
+  }
+}
+
+static char* featurestate_to_string(FeatureState state) {
+  switch(state) {
+    case FeatureStateUnknown: return "FeatureStateUnknown";
+    case FeatureStateOff: return "FeatureStateOff";
+    case FeatureStateOn: return "FeatureStateOn";
+    case FeatureStateRingerLoud: return "FeatureStateRingerLoud";
+    case FeatureStateRingerVibrate: return "FeatureStateRingerVibrate";
+    case FeatureStateRingerSilent: return "FeatureStateRingerSilent";
+    default: return "Unknown FeatureState";
+  }
+}
+
 /************************************ API *************************************/
 
 void dash_api_get_data(DataType type, DashAPIDataCallback *callback) {
@@ -263,6 +302,10 @@ void dash_api_get_data(DataType type, DashAPIDataCallback *callback) {
   const int dummy = 0;
   dict_write_int(s_outbox, RequestTypeGetData, &dummy, sizeof(int), true);
   dict_write_int(s_outbox, AppKeyDataType, &type, sizeof(int), true);
+
+  if(s_log_requests) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Dash API: dash_api_get_data %s", datatype_to_string(type));
+  }
 
   s_last_get_data_type = type;
   s_last_get_data_cb = callback;
@@ -288,6 +331,10 @@ void dash_api_set_feature(FeatureType type, FeatureState new_state, DashAPIFeatu
   const int state = (int)new_state; // Prevents 2 becoming 119762434
   dict_write_int(s_outbox, AppKeyFeatureState, &state, sizeof(int), true);
 
+  if(s_log_requests) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Dash API: dash_api_set_feature %s %s", featuretype_to_string(type), featurestate_to_string(new_state));
+  }
+
   s_last_set_feature_type = type;
   s_last_set_feature_cb = callback;
   send_outbox();
@@ -306,6 +353,10 @@ void dash_api_get_feature(FeatureType type, DashAPIFeatureCallback *callback) {
   dict_write_int(s_outbox, RequestTypeGetFeature, &dummy, sizeof(int), true);
   dict_write_int(s_outbox, AppKeyFeatureType, &type, sizeof(int), true);
 
+  if(s_log_requests) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Dash API: dash_api_get_feature %s", featuretype_to_string(type));
+  }
+
   s_last_get_feature_type = type;
   s_last_get_feature_cb = callback;
   send_outbox();
@@ -320,6 +371,7 @@ void dash_api_init(char *app_name, DashAPIErrorCallback *callback) {
   events_app_message_request_outbox_size(OUTBOX_SIZE);
 
   s_initialized = true;
+  s_log_requests = false;
 }
 
 void dash_api_check_is_available() {
@@ -405,4 +457,8 @@ void dash_api_fake_error(ErrorCode code) {
   if(s_error_callback) {
     s_error_callback(code);
   }
+}
+
+void dash_api_log_requests(bool log_requests) {
+  s_log_requests = log_requests;
 }

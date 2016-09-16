@@ -150,3 +150,8 @@ void dash_api_fake_get_feature_response(FeatureType type, FeatureState new_state
 
 // Use within 10s of making a request to cancel the timeout and fake an error from the Android app.
 void dash_api_fake_error(ErrorCode code);
+
+// Log all outgoing requests
+// Parameters:
+//   log_requests - true to log all outgoing requests. Default is false
+void dash_api_log_requests(bool log_requests);

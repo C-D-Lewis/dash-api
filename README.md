@@ -1,8 +1,8 @@
 # dash-api
 
-*Current API version: 1.4.0*
+*Current API version: 1.5.0*
 
-*Current published Android app version: 1.2 (library 1.4.0 compatible)*
+*Current published Android app version: 1.2 (library 1.5.0 compatible)*
 
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
@@ -13,7 +13,7 @@ app.
 - [Get Data](#get-data)
 - [Set a Feature State](#set-a-feature-state)
 - [Get a Feature State](#get-a-feature-state)
-- [Testing Responses](#testing-responses)
+- [Testing](#testing-responses)
 - [Error Codes](#error-codes)
 - [Changelog](#changelog)
 
@@ -249,7 +249,7 @@ of the request.
 > the phone model.
 
 
-## Testing Responses
+## Testing
 
 If testing in the Pebble SDK emulator, or if an Android phone is not available,
 you can rig up fake responses as if they came from the Dash API. See any of the 
@@ -267,6 +267,8 @@ dash_api_get_data(type, get_data_callback);
 dash_api_fake_get_data_response(type, 5, NULL);
 #endif
 ```
+
+You can also see all the requests being made by setting `dash_api_log_requests(true);` after initializing.
 
 
 ## Error Codes
@@ -328,6 +330,9 @@ the user in case of an error above.
 
 **1.4.0**
 - Build for Diorite with SDK 4.0.
+
+**1.5.0**
+- Add `dash_api_log_requests()`.
 
 
 ## TODO
