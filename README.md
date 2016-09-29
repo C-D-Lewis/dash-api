@@ -47,7 +47,8 @@ uses this library to show unread SMS message count and the next calendar event.
 ### Client Apps
 
 These are the known apps that use the Dash API - check them out! If you are
-using the Dash API in your app, let me know, and I'll add your app here!
+using the Dash API in your app, raise an issue or otherwise let me know, and
+I'll add your app here!
 
 - Snowy - [Pebble appstore](https://apps.getpebble.com/en_US/application/561960c8a1dd2652af00000d)
 
