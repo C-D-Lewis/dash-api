@@ -37,10 +37,23 @@ already. The library will inform you of this if a request times out by
 delivering `ErrorCodeUnavailable` to your `DashAPIErrorCallback`.
 
 
-### Example App
-
-[Dual Gauge](https://github.com/C-D-Lewis/dual-gauge) is an example watchface
+ is an example watchface
 that uses this library to show both the watch and phone battery levels.
+
+ is another watchface that
+uses this library to show unread SMS message count and the next calendar event.
+
+
+### Client Apps
+
+These are the known apps that use the Dash API - check them out! If you are
+using the Dash API in your app, let me know, and I'll add your app here!
+
+- Snowy - [Pebble appstore](https://apps.getpebble.com/en_US/application/561960c8a1dd2652af00000d)
+
+- Dual Gauge - [Pebble appstore](https://apps.getpebble.com/en_US/application/578cb2e31e00a6c4b3000312) - [Source](https://github.com/C-D-Lewis/dual-gauge)
+
+- Eventful - [Pebble appstore](https://apps.getpebble.com/en_US/application/579a076222f599d627000064) - [Source](https://github.com/C-D-Lewis/eventful)
 
 
 ### Important Notes
