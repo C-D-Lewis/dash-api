@@ -1,6 +1,7 @@
 #include "pebble-dash-api.h"
 
 #include <pebble-events/pebble-events.h>
+#include <pebble-packet/pebble-packet.h> 
 
 #define INBOX_SIZE  256
 #define OUTBOX_SIZE 256
@@ -33,7 +34,6 @@ static DashAPIErrorCallback *s_error_callback;
 static AppTimer *s_timeout_timer, *s_send_timer;
 static FeatureType s_last_get_feature_type, s_last_set_feature_type;
 static DataType s_last_get_data_type;
-static DictionaryIterator *s_outbox;
 static char s_app_name[32];
 static bool s_in_flight, s_initialized, s_log_requests;
 
@@ -184,11 +184,10 @@ static void inbox_received_handler(DictionaryIterator *inbox, void *context) {
 }
 
 static void write_header() {
-  const int dummy = 0;
-  dict_write_int(s_outbox, AppKeyUsesDashAPI, &dummy, sizeof(int), true);
-  dict_write_cstring(s_outbox, AppKeyAppName, s_app_name);
-  const char *version = ANDROID_APP_VERSION;
-  dict_write_cstring(s_outbox, AppKeyLibraryVersion, version);
+  packet_put_integer(AppKeyUsesDashAPI, 0);
+  packet_put_string(AppKeyAppName, s_app_name);
+  char *version = ANDROID_APP_VERSION;
+  packet_put_string(AppKeyLibraryVersion, version);
 }
 
 static bool prepare_outbox() {
@@ -210,15 +209,14 @@ static bool prepare_outbox() {
     return false;
   }
 
-  AppMessageResult result = app_message_outbox_begin(&s_outbox);
-  if(result != APP_MSG_OK) {
+  bool success = packet_begin();
+  if(!success) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error opening outbox!");
     s_error_callback(ErrorCodeSendingFailed);
     return false;
   }
 
   write_header();
-
   return true;
 }
 
@@ -229,10 +227,15 @@ static void timeout_handler(void *context) {
   s_error_callback(ErrorCodeUnavailable);
 }
 
+static void failed_callback() {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Packet send failed.");
+  s_error_callback(ErrorCodeSendingFailed);
+}
+
 static void send_outbox_callback() {
   s_send_timer = NULL;   // It went off
 
-  if(app_message_outbox_send() != APP_MSG_OK) {
+  if(!packet_send(failed_callback)) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Dash API: Error sending outbox!");
     s_error_callback(ErrorCodeSendingFailed);
   }
@@ -299,9 +302,8 @@ void dash_api_get_data(DataType type, DashAPIDataCallback *callback) {
     return;
   }
 
-  const int dummy = 0;
-  dict_write_int(s_outbox, RequestTypeGetData, &dummy, sizeof(int), true);
-  dict_write_int(s_outbox, AppKeyDataType, &type, sizeof(int), true);
+  packet_put_integer(RequestTypeGetData, 0);
+  packet_put_integer(AppKeyDataType, type);
 
   if(s_log_requests) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Dash API: dash_api_get_data %s", datatype_to_string(type));
@@ -325,11 +327,10 @@ void dash_api_set_feature(FeatureType type, FeatureState new_state, DashAPIFeatu
     return;
   }
 
-  const int dummy = 0;
-  dict_write_int(s_outbox, RequestTypeSetFeature, &dummy, sizeof(int), true);
-  dict_write_int(s_outbox, AppKeyFeatureType, &type, sizeof(int), true);
+  packet_put_integer(RequestTypeSetFeature, 0);
+  packet_put_integer(AppKeyFeatureType, type);
   const int state = (int)new_state; // Prevents 2 becoming 119762434
-  dict_write_int(s_outbox, AppKeyFeatureState, &state, sizeof(int), true);
+  packet_put_integer(AppKeyFeatureState, state);
 
   if(s_log_requests) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Dash API: dash_api_set_feature %s %s", featuretype_to_string(type), featurestate_to_string(new_state));
@@ -349,9 +350,8 @@ void dash_api_get_feature(FeatureType type, DashAPIFeatureCallback *callback) {
     return;
   }
 
-  const int dummy = 0;
-  dict_write_int(s_outbox, RequestTypeGetFeature, &dummy, sizeof(int), true);
-  dict_write_int(s_outbox, AppKeyFeatureType, &type, sizeof(int), true);
+  packet_put_integer(RequestTypeGetFeature, 0);
+  packet_put_integer(AppKeyFeatureType, type);
 
   if(s_log_requests) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Dash API: dash_api_get_feature %s", featuretype_to_string(type));
@@ -379,9 +379,7 @@ void dash_api_check_is_available() {
     return;
   }
 
-  const int dummy = 0;
-  dict_write_int(s_outbox, RequestTypeIsAvailable, &dummy, sizeof(int), true);
-
+  packet_put_integer(RequestTypeIsAvailable, 0);
   send_outbox();
 }
 

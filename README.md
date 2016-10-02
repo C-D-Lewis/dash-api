@@ -1,8 +1,8 @@
 # dash-api
 
-*Current API version: 1.5.0*
+*Current API version: 1.6.0*
 
-*Current published Android app version: 1.2 (library 1.5.0 compatible)*
+*Current published Android app version: 1.2 (library 1.6.0 compatible)*
 
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
@@ -35,13 +35,6 @@ Developers using this library should direct their users to install 'Dash API for
 Pebble' from the Google Play Store, or check that they have it installed
 already. The library will inform you of this if a request times out by
 delivering `ErrorCodeUnavailable` to your `DashAPIErrorCallback`.
-
-
- is an example watchface
-that uses this library to show both the watch and phone battery levels.
-
- is another watchface that
-uses this library to show unread SMS message count and the next calendar event.
 
 
 ### Client Apps
@@ -347,6 +340,9 @@ the user in case of an error above.
 
 **1.5.0**
 - Add `dash_api_log_requests()`.
+
+**1.6.0**
+- Update `pebble-packet` to notify failed packet sends better. 
 
 
 ## TODO

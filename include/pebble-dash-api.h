@@ -2,7 +2,7 @@
 
 #include <pebble.h>
 
-#define ANDROID_APP_VERSION "1.2"   // The compatible Android app version
+#define ANDROID_APP_VERSION "1.2"   // The minimum compatible Android app version.
 
 /******************************** Enumerations ********************************/
 
