@@ -1,8 +1,8 @@
 # dash-api
 
-*Current API version: 1.6.0*
+*Current API version: 1.6.1*
 
-*Current published Android app version: 1.2 (library 1.6.0 compatible)*
+*Current published Android app version: 1.6 (library 1.6.1 compatible)*
 
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
@@ -343,6 +343,9 @@ the user in case of an error above.
 
 **1.6.0**
 - Update `pebble-packet` to notify failed packet sends better. 
+
+**1.6.1**
+- Fix dependency error.
 
 
 ## TODO

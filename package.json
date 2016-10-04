@@ -1,7 +1,7 @@
 {
   "name": "pebble-dash-api",
   "author": "Chris Lewis",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "files": [
     "dist.zip"
   ],
@@ -13,7 +13,7 @@
   ],
   "dependencies": {
     "pebble-events": "^1.1.0",
-    "pebble-packet": "file:///Users/chrislewis/Dropbox/Pebble-Dev/4.0/lib/pebble-packet"
+    "pebble-packet": "^1.3.0"
   },
   "pebble": {
     "projectType": "package",
