@@ -347,6 +347,9 @@ the user in case of an error above.
 **1.6.1**
 - Fix dependency error.
 
+**1.7.0**
+- Built with 4.2-beta5 for Emery platform.
+
 
 ## TODO
 

@@ -1,7 +1,7 @@
 {
   "name": "pebble-dash-api",
   "author": "Chris Lewis",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "files": [
     "dist.zip"
   ],
@@ -22,7 +22,8 @@
       "aplite",
       "basalt",
       "chalk",
-      "diorite"
+      "diorite",
+      "emery"
     ],
     "resources": {
       "media": []
