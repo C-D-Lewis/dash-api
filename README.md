@@ -1,8 +1,8 @@
 # dash-api
 
-*Current API version: 1.6.1*
+*Current API version: 1.7*
 
-*Current published Android app version: 1.6 (library 1.6.1 compatible)*
+*Current published Android app version: 1.7 (library 1.7 compatible)*
 
 Dash API (in reference to the 
 [Dashboard app](https://play.google.com/store/apps/details?id=com.wordpress.ninedof.dashboard)) 
